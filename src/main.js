@@ -11,6 +11,9 @@ const sizes = {
   width: window.innerWidth,
 };
 
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector3();
+
 /*Loaders*/
 const textureLoader = new THREE.TextureLoader();
 
@@ -41,23 +44,23 @@ Object.entries(textureMap).forEach(([key, paths]) => {
   loaderTextures.day[key] = dayTexture;
 });
 
-loader.load("/models/Room_Portfolio_Compressed.glb", (glb) => {
-  const specificKeys = ["First", "Second", "Third", "Fourth", "Fifth"];
-  glb.scene.traverse((child) => {
+loader.load("/models/MainRoomV4PostBake-v1.glb", (glb) => {
+  glb.scene.traverse((child)=>{
     if (child.isMesh) {
-      const matchedKey = specificKeys.find((key) => child.name == key);
-      if (matchedKey) {
-        child.material = new THREE.MeshBasicMaterial({
-          map: loaderTextures.day[matchedKey],
-        });
-      } else {
-        child.material = new THREE.MeshBasicMaterial({
-          map: loaderTextures.day["Targets"],
-        });
-      }
-      if (child.material.map) {
-        child.material.map.minFilter = THREE.LinearFilter; //prevent seams from forming if zoom out
-      }
+      Object.keys(textureMap).forEach((key)=>{
+        if (child.name.includes(key)){
+          const material = new THREE.MeshBasicMaterial({
+            map: loaderTextures.day[key],
+          });
+          child.material = material;
+        }
+        if (child.name.includes("Third")){
+          console.log(child.name, loaderTextures.day.Third, child.material.map);
+        }
+        if (child.material.map) {
+          child.material.map.minFilter = THREE.LinearFilter; //prevent seams from forming if zoom out
+        }
+      })
     }
   });
   scene.add(glb.scene);
@@ -106,8 +109,21 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
+window.addEventListener("mousemove", (e)=>{
+  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = (e.clientY  / window.innerHeight  ) * 2 + 1;
+})
+
 const render = () => {
   controls.update();
+
+  // raycaster.setFromCamera(pointer, camera );
+
+  // const intersects = raycaster.intersectObjects(scene.children);
+
+  // for (let i =0;i<intersects.length;i++){
+  //   intersects[i].object.material.color.set(0xff0000);
+  // }
 
   renderer.render(scene, camera);
 
