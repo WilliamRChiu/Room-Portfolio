@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import gsap from "gsap";
 
 const canvas = document.querySelector(".experience-canvas");
 
@@ -11,8 +12,54 @@ const sizes = {
   width: window.innerWidth,
 };
 
+const modals = {
+  projects: document.querySelector(".modal.projects"),
+  about: document.querySelector(".modal.about"),
+  contact: document.querySelector(".modal.contact"),
+  resume: document.querySelector(".modal.resume"),
+};
+
+document.querySelectorAll(".modal-exit-button").forEach((button) => {
+  button.addEventListener("click", (e) => {
+    //search for the closest parent modal and close it
+    const targetModal = e.target.closest(".modal");
+    hideModal(targetModal);
+  });
+});
+
+const showModal = (modal) => {
+  modal.style.display = "block";
+  //need to set gsap animation initial states to avoid gitches
+  gsap.set(modal, { opacity: 0 });
+  gsap.to(modal, {
+    opacity: 1,
+    duration: 0.5,
+  });
+};
+
+const hideModal = (modal) => {
+  modal.style.display = "block";
+  //need to set gsap animation initial states to avoid gitches
+  gsap.set(modal, { opacity: 1 });
+  gsap.to(modal, {
+    opacity: 0,
+    duration: 0.5,
+    onComplete: () => {
+      modal.style.display = "none";
+    },
+  });
+};
+
+const raycasterObjects = [];
+let currentIntersects = [];
+
 const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector3();
+const pointer = new THREE.Vector2();
+
+const socialLinks = {
+  Github: "https://github.com/WilliamRChiu",
+  Linkedin: "https://www.linkedin.com/in/williamrchiu/",
+};
 
 /*Loaders*/
 const textureLoader = new THREE.TextureLoader();
@@ -44,23 +91,26 @@ Object.entries(textureMap).forEach(([key, paths]) => {
   loaderTextures.day[key] = dayTexture;
 });
 
-loader.load("/models/MainRoomV4PostBake-v1.glb", (glb) => {
-  glb.scene.traverse((child)=>{
+loader.load("/models/MainRoomV42PostBake-v1.glb", (glb) => {
+  glb.scene.traverse((child) => {
     if (child.isMesh) {
-      Object.keys(textureMap).forEach((key)=>{
-        if (child.name.includes(key)){
+      if (child.name.includes("Raycaster")) {
+        raycasterObjects.push(child);
+      }
+      Object.keys(textureMap).forEach((key) => {
+        if (child.name.includes(key)) {
           const material = new THREE.MeshBasicMaterial({
             map: loaderTextures.day[key],
           });
           child.material = material;
         }
-        if (child.name.includes("Third")){
+        if (child.name.includes("Third")) {
           console.log(child.name, loaderTextures.day.Third, child.material.map);
         }
         if (child.material.map) {
           child.material.map.minFilter = THREE.LinearFilter; //prevent seams from forming if zoom out
         }
-      })
+      });
     }
   });
   scene.add(glb.scene);
@@ -68,12 +118,12 @@ loader.load("/models/MainRoomV4PostBake-v1.glb", (glb) => {
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
-  75,
+  35,
   sizes.width / sizes.height,
   0.1,
   1000
 );
-camera.position.set(3.9675245476668666, 5.889062656688702, 6.212748218287423);
+camera.position.set(0.6107703493773222, 8.783041380332026, -4.315958524515217);
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -87,9 +137,9 @@ controls.enableDamping = true; //allows slowing glide after movement of camera
 controls.dampingFactor = 0.05;
 controls.update();
 controls.target.set(
-  -0.20356508065730236,
-  0.47454386084186306,
-  -0.38998272940458945
+  -13.918782764225309,
+  -2.3893284531626153,
+  -23.468335659314093
 );
 /*Event Listeners*/
 
@@ -109,21 +159,52 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
-window.addEventListener("mousemove", (e)=>{
+window.addEventListener("mousemove", (e) => {
   pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = (e.clientY  / window.innerHeight  ) * 2 + 1;
-})
+  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+
+window.addEventListener("click", (e) => {
+  if (currentIntersects.length) {
+    const hit = currentIntersects[0].object;
+    if (hit.name.includes("Projects_Button")) {
+      showModal(modals.projects);
+    } else if (hit.name.includes("About_Button")) {
+      showModal(modals.about);
+    } else if (hit.name.includes("Contact_Button")) {
+      showModal(modals.contact);
+    } else if (hit.name.includes("Resume_Button")) {
+      showModal(modals.resume);
+    }
+  }
+});
 
 const render = () => {
   controls.update();
 
-  // raycaster.setFromCamera(pointer, camera );
+  raycaster.setFromCamera(pointer, camera);
 
-  // const intersects = raycaster.intersectObjects(scene.children);
+  currentIntersects = raycaster.intersectObjects(raycasterObjects);
 
-  // for (let i =0;i<intersects.length;i++){
-  //   intersects[i].object.material.color.set(0xff0000);
-  // }
+  for (let i = 0; i < currentIntersects.length; i++) {
+    // currentIntersects[i].object.material.color.set(0xff0000);
+  }
+
+  if (currentIntersects.length > 0) {
+    const currentIntersectedObject = currentIntersects[0].object;
+    if (currentIntersectedObject.name.includes("Pointer")) {
+      document.body.style.cursor = "pointer";
+    } else {
+      document.body.style.cursor = "default";
+    }
+  } else {
+    document.body.style.cursor = "default";
+  }
+
+  /*camera logging*/
+  // console.log(camera.position);
+  // console.log("00000");
+  // console.log(controls.target);
 
   renderer.render(scene, camera);
 
