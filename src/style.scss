@@ -1,3 +1,4 @@
+@use "./styles/resets.scss";
 *{
   margin: 0;
   box-sizing: border-box;
@@ -44,6 +45,8 @@
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 32px;
+  max-width: 700px;
+  width: 100%;
   z-index: 999;
   display: none;
   background-color:rgba(241, 145, 145, 0.87);

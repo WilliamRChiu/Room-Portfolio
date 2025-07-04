@@ -12,6 +12,18 @@ const sizes = {
   width: window.innerWidth,
 };
 
+const raycasterObjects = [];
+let currentIntersects = [];
+let currentHoveredOject = null;
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+const socialLinks = {
+  Github: "https://github.com/WilliamRChiu",
+  Linkedin: "https://www.linkedin.com/in/williamrchiu/",
+};
+
 const modals = {
   projects: document.querySelector(".modal.projects"),
   about: document.querySelector(".modal.about"),
@@ -19,16 +31,19 @@ const modals = {
   resume: document.querySelector(".modal.resume"),
 };
 
-document.querySelectorAll(".modal-exit-button").forEach((button) => {
-  button.addEventListener("click", (e) => {
-    //search for the closest parent modal and close it
-    const targetModal = e.target.closest(".modal");
-    hideModal(targetModal);
-  });
-});
+let isModalOpen = false;
 
 const showModal = (modal) => {
   modal.style.display = "block";
+  isModalOpen = true;
+  controls.enabled = false;
+
+  if (currentHoveredOject){
+    playHoverAnimation(currentHoveredOject, false)
+    currentHoveredOject = null;
+  }
+  document.body.style.cursor = "default";
+  currentIntersectedObject = [];
   //need to set gsap animation initial states to avoid gitches
   gsap.set(modal, { opacity: 0 });
   gsap.to(modal, {
@@ -39,6 +54,8 @@ const showModal = (modal) => {
 
 const hideModal = (modal) => {
   modal.style.display = "block";
+  isModalOpen = false;
+  controls.enabled = true;
   //need to set gsap animation initial states to avoid gitches
   gsap.set(modal, { opacity: 1 });
   gsap.to(modal, {
@@ -50,16 +67,31 @@ const hideModal = (modal) => {
   });
 };
 
-const raycasterObjects = [];
-let currentIntersects = [];
+let touchHappened = false;
 
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
+document.querySelectorAll(".modal-exit-button").forEach((button) => {
+  button.addEventListener(
+    "touchend",
+    (e) => {
+      touchHappened = true;
+      //search for the closest parent modal and close it
+      const targetModal = e.target.closest(".modal");
+      hideModal(targetModal);
+    },
+    { passive: false }
+  );
 
-const socialLinks = {
-  Github: "https://github.com/WilliamRChiu",
-  Linkedin: "https://www.linkedin.com/in/williamrchiu/",
-};
+  button.addEventListener(
+    "click",
+    (e) => {
+      if (touchHappened) return;
+      //search for the closest parent modal and close it
+      const targetModal = e.target.closest(".modal");
+      hideModal(targetModal);
+    },
+    { passive: false }
+  );
+});
 
 /*Loaders*/
 const textureLoader = new THREE.TextureLoader();
@@ -96,6 +128,11 @@ loader.load("/models/MainRoomV42PostBake-v1.glb", (glb) => {
     if (child.isMesh) {
       if (child.name.includes("Raycaster")) {
         raycasterObjects.push(child);
+      }
+      if (child.name.includes("Hover")) {
+        child.userData.initialScale = new THREE.Vector3().copy(child.scale);
+        child.userData.initialRotation = new THREE.Euler().copy(child.position);
+        child.userData.initialRotation = new THREE.Euler().copy(child.rotation);
       }
       Object.keys(textureMap).forEach((key) => {
         if (child.name.includes(key)) {
@@ -141,6 +178,18 @@ controls.target.set(
   -2.3893284531626153,
   -23.468335659314093
 );
+//ensure cam cant go below floor
+controls.minPolarAngle = 0;
+
+//ensure cam cant go above certain angle
+controls.maxPolarAngle = Math.PI/2;
+controls.minAzimuthAngle = 0;
+controls.maxAzimuthAngle = Math.PI/3;
+
+//limit zoom
+controls.minDistance = 10;
+controls.maxDistance = 35;
+
 /*Event Listeners*/
 
 //Window resize event listener
@@ -160,9 +209,48 @@ window.addEventListener("resize", () => {
 });
 
 window.addEventListener("mousemove", (e) => {
+  touchHappened = false; //hack for closing window but it works
   pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 });
+
+//for mobile users
+window.addEventListener(
+  "touchstart",
+  (e) => {
+    if (isModalOpen) return;
+    e.preventDefault();
+    //0 gets first finger that touches the screen
+    pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+  },
+  { passive: false }
+);
+
+function handleRaycasterInteration() {
+  if (currentIntersects.length) {
+    const hit = currentIntersects[0].object;
+    if (hit.name.includes("Projects_Button")) {
+      showModal(modals.projects);
+    } else if (hit.name.includes("About_Button")) {
+      showModal(modals.about);
+    } else if (hit.name.includes("Contact_Button")) {
+      showModal(modals.contact);
+    } else if (hit.name.includes("Resume_Button")) {
+      showModal(modals.resume);
+    }
+  }
+}
+
+window.addEventListener(
+  "touchend",
+  (e) => {
+    if (isModalOpen) return;
+    e.preventDefault();
+    handleRaycasterInteration();
+  },
+  { passive: false }
+);
 
 window.addEventListener("click", (e) => {
   if (currentIntersects.length) {
@@ -179,6 +267,41 @@ window.addEventListener("click", (e) => {
   }
 });
 
+function playHoverAnimation(object, isHovering) {
+  gsap.killTweensOf(object.scale);
+  gsap.killTweensOf(object.rotation);
+  gsap.killTweensOf(object.position);
+
+  if (isHovering) {
+    gsap.to(object.scale, {
+      x: object.userData.initialScale.x * 1.2,
+      y: object.userData.initialScale.y * 1.2,
+      z: object.userData.initialScale.z * 1.2,
+      duration: 0.5,
+      ease: "bounce.out(1.8)",
+    });
+    gsap.to(object.rotation, {
+      x: (object.userData.initialRotation.x * Math.PI) / 8,
+      duration: 0.5,
+      ease: "bounce.out(1.8)",
+    });
+  }
+  else{
+    gsap.to(object.scale, {
+      x: object.userData.initialScale.x,
+      y: object.userData.initialScale.y,
+      z: object.userData.initialScale.z,
+      duration: 0.3,
+      ease: "bounce.out(1.8)",
+    });
+    gsap.to(object.rotation, {
+      x: object.userData.initialRotation.x,
+      duration: 0.3,
+      ease: "bounce.out(1.8)",
+    });
+  }
+}
+
 const render = () => {
   controls.update();
 
@@ -186,19 +309,34 @@ const render = () => {
 
   currentIntersects = raycaster.intersectObjects(raycasterObjects);
 
-  for (let i = 0; i < currentIntersects.length; i++) {
-    // currentIntersects[i].object.material.color.set(0xff0000);
-  }
+  if (!isModalOpen){
 
-  if (currentIntersects.length > 0) {
-    const currentIntersectedObject = currentIntersects[0].object;
-    if (currentIntersectedObject.name.includes("Pointer")) {
-      document.body.style.cursor = "pointer";
+    if (currentIntersects.length > 0) {
+      const currentIntersectedObject = currentIntersects[0].object;
+
+      if (currentIntersectedObject.name.includes("Hover")) {
+        if (currentIntersectedObject!=currentHoveredOject){
+          //These cover cases on I am on hovered object, and i may switch to another hover object
+          if (currentHoveredOject){
+            playHoverAnimation(currentHoveredOject, false);
+          }
+          playHoverAnimation(currentIntersectedObject, true);
+          currentHoveredOject = currentIntersectedObject;
+        }
+      }
+      if (currentIntersectedObject.name.includes("Pointer")) {
+        document.body.style.cursor = "pointer";
+      } else {
+        document.body.style.cursor = "default";
+      }
     } else {
+      if (currentHoveredOject){
+        //covers case of I am on hover object and then i leave it
+        playHoverAnimation(currentHoveredOject, false);
+        currentHoveredOject = null;
+      }
       document.body.style.cursor = "default";
     }
-  } else {
-    document.body.style.cursor = "default";
   }
 
   /*camera logging*/
