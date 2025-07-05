@@ -43,7 +43,7 @@ const showModal = (modal) => {
     currentHoveredOject = null;
   }
   document.body.style.cursor = "default";
-  currentIntersectedObject = [];
+  currentIntersects = [];
   //need to set gsap animation initial states to avoid gitches
   gsap.set(modal, { opacity: 0 });
   gsap.to(modal, {
