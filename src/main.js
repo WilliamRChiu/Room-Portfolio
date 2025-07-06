@@ -38,8 +38,8 @@ const showModal = (modal) => {
   isModalOpen = true;
   controls.enabled = false;
 
-  if (currentHoveredOject){
-    playHoverAnimation(currentHoveredOject, false)
+  if (currentHoveredOject) {
+    playHoverAnimation(currentHoveredOject, false);
     currentHoveredOject = null;
   }
   document.body.style.cursor = "default";
@@ -106,7 +106,7 @@ loader.setDRACOLoader(dracoLoader);
 const textureMap = {
   First: "/textures/TextureSetOneDay.webp",
   Second: "/textures/TextureSetTwoDay.webp",
-  Third: "/textures/TextureSetThreeDay.webp",
+  Third: "/textures/TextureSetThreeDayUpdate.webp",
   Fourth: "/textures/TextureSetFourDay.webp",
   Fifth: "/textures/TextureSetFiveDay.webp",
   Targets: "/textures/TargetTextureSetDay.webp",
@@ -123,7 +123,7 @@ Object.entries(textureMap).forEach(([key, paths]) => {
   loaderTextures.day[key] = dayTexture;
 });
 
-loader.load("/models/MainRoomV42PostBake-v1.glb", (glb) => {
+loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
   glb.scene.traverse((child) => {
     if (child.isMesh) {
       if (child.name.includes("Raycaster")) {
@@ -160,7 +160,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0.6107703493773222, 8.783041380332026, -4.315958524515217);
+camera.position.set(1.7731712838628582, 8.644026257550694, -2.8065522539595307);
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -174,21 +174,21 @@ controls.enableDamping = true; //allows slowing glide after movement of camera
 controls.dampingFactor = 0.05;
 controls.update();
 controls.target.set(
-  -13.918782764225309,
-  -2.3893284531626153,
-  -23.468335659314093
+  -11.075374626957164,
+  0.8632929503333462,
+  -18.317494451055623
 );
 //ensure cam cant go below floor
 controls.minPolarAngle = 0;
 
 //ensure cam cant go above certain angle
-controls.maxPolarAngle = Math.PI/2;
+controls.maxPolarAngle = Math.PI / 2;
 controls.minAzimuthAngle = 0;
-controls.maxAzimuthAngle = Math.PI/3;
+controls.maxAzimuthAngle = Math.PI / 2;
 
 //limit zoom
 controls.minDistance = 10;
-controls.maxDistance = 35;
+controls.maxDistance = 50;
 
 /*Event Listeners*/
 
@@ -285,8 +285,7 @@ function playHoverAnimation(object, isHovering) {
       duration: 0.5,
       ease: "bounce.out(1.8)",
     });
-  }
-  else{
+  } else {
     gsap.to(object.scale, {
       x: object.userData.initialScale.x,
       y: object.userData.initialScale.y,
@@ -309,15 +308,14 @@ const render = () => {
 
   currentIntersects = raycaster.intersectObjects(raycasterObjects);
 
-  if (!isModalOpen){
-
+  if (!isModalOpen) {
     if (currentIntersects.length > 0) {
       const currentIntersectedObject = currentIntersects[0].object;
 
       if (currentIntersectedObject.name.includes("Hover")) {
-        if (currentIntersectedObject!=currentHoveredOject){
+        if (currentIntersectedObject != currentHoveredOject) {
           //These cover cases on I am on hovered object, and i may switch to another hover object
-          if (currentHoveredOject){
+          if (currentHoveredOject) {
             playHoverAnimation(currentHoveredOject, false);
           }
           playHoverAnimation(currentIntersectedObject, true);
@@ -330,7 +328,7 @@ const render = () => {
         document.body.style.cursor = "default";
       }
     } else {
-      if (currentHoveredOject){
+      if (currentHoveredOject) {
         //covers case of I am on hover object and then i leave it
         playHoverAnimation(currentHoveredOject, false);
         currentHoveredOject = null;
@@ -340,9 +338,9 @@ const render = () => {
   }
 
   /*camera logging*/
-  // console.log(camera.position);
-  // console.log("00000");
-  // console.log(controls.target);
+  console.log(camera.position);
+  console.log("00000");
+  console.log(controls.target);
 
   renderer.render(scene, camera);
 
