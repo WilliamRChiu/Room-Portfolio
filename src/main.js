@@ -189,8 +189,10 @@ window.addEventListener(
   { passive: false }
 );
 
+//for desktop
 window.addEventListener("click", handleInteraction);
-window.addEventListener("click", handleInteraction);
+//for mobile
+window.addEventListener("touchend", handleInteraction);
 
 function playHoverAnimation(object, isHovering) {
   gsap.killTweensOf(object.scale);

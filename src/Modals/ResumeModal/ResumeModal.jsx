@@ -12,7 +12,7 @@ export default function ResumeModal() {
         className={styles.iframe}
       />
       <a
-        href="/CV.pdf"
+        href="https://www.overleaf.com/read/kmfydnbqwsvd#d5804a/output/output.pdf"
         target="_blank"
         rel="noopener noreferrer"
         className={styles.downloadButton}
