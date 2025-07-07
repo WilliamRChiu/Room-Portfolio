@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import gsap from "gsap";
 import "./style.scss";
 import ProjectsModal from "./Modals/ProjectsModal/ProjectsModal";
+import ResumeModal from "./Modals/ResumeModal/ResumeModal";
+import Loader from "./Common/Loader/Loader";
 
 /* ---------------- modal component ---------------- */
 function Modal({ type, onClose }) {
@@ -36,7 +38,7 @@ function Modal({ type, onClose }) {
         {type === "Projects" && <ProjectsModal/>}
         {type === "About" && <p>About me modal 👋</p>}
         {type === "Contact" && <p>Contact modal 📫</p>}
-        {type === "Resume" && <p>Résumé modal 📄</p>}
+        {type === "Resume" && <ResumeModal/>}
       </div>
     </div>
   );
@@ -45,21 +47,28 @@ function Modal({ type, onClose }) {
 /* ------------- bridge so vanilla JS can open modals ------------- */
 function UIBridge() {
   const [modal, setModal] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // expose helpers globally
     window.openModal = (name) => setModal(name);
     window.closeModal = () => setModal(null);
+
+    //make the loading available to 3.js
+    window.hideLoader = () => setLoading(false);
   }, []);
 
   return (
-    <Modal
-      type={modal}
-      onClose={() => {
-        setModal(null);
-        if (window.controls) window.controls.enabled = true; // re-enable orbit
-      }}
-    />
+    <>
+        {loading && <Loader/>}
+        <Modal
+        type={modal}
+        onClose={() => {
+            setModal(null);
+            if (window.controls) window.controls.enabled = true; // re-enable orbit
+        }}
+        />
+    </>
   );
 }
 

@@ -20,6 +20,12 @@ let currentHoveredOject = null;
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
+const manager = new THREE.LoadingManager();
+
+manager.onLoad = function() {
+  window.hideLoader();
+}
+
 const socialLinks = {
   Github: "https://github.com/WilliamRChiu",
   Linkedin: "https://www.linkedin.com/in/williamrchiu/",
@@ -32,7 +38,7 @@ const textureLoader = new THREE.TextureLoader();
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/draco/");
 
-const loader = new GLTFLoader();
+const loader = new GLTFLoader(manager);
 loader.setDRACOLoader(dracoLoader);
 
 const textureMap = {
@@ -89,6 +95,8 @@ loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
   });
   scene.add(glb.scene);
 });
+
+
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(

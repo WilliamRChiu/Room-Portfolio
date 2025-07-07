@@ -1,0 +1,53 @@
+@use "../../styles/variables.scss" as *;
+
+.loaderWrapper {
+  position: fixed;
+  inset: 0;
+  background-color: $base-pastel-yellow;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 6000;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  background: $base-pastel-blue;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+.text {
+  margin-top: 1rem;
+  font-family: "Figtree", sans-serif;
+  font-size: 1.25rem;
+  color: $base-dark-gray;
+  opacity: 0.85;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
