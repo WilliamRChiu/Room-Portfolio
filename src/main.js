@@ -138,6 +138,22 @@ controls.maxDistance = 50;
 
 /*Event Listeners*/
 
+//function for click events
+function handleInteraction() {
+  if (currentIntersects.length) {
+    const hit = currentIntersects[0].object;
+    if (hit.name.includes("Projects_Button")) {
+      openModalAndLock("Projects");
+    } else if (hit.name.includes("About_Button")) {
+      openModalAndLock("About");
+    } else if (hit.name.includes("Contact_Button")) {
+      openModalAndLock("Contact");
+    } else if (hit.name.includes("Resume_Button")) {
+      openModalAndLock("Resume");
+    }
+  }
+}
+
 //Window resize event listener
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
@@ -173,20 +189,8 @@ window.addEventListener(
   { passive: false }
 );
 
-window.addEventListener("click", (e) => {
-  if (currentIntersects.length) {
-    const hit = currentIntersects[0].object;
-    if (hit.name.includes("Projects_Button")) {
-      openModalAndLock("Projects");
-    } else if (hit.name.includes("About_Button")) {
-      openModalAndLock("About");
-    } else if (hit.name.includes("Contact_Button")) {
-      openModalAndLock("Contact");
-    } else if (hit.name.includes("Resume_Button")) {
-      openModalAndLock("Resume");
-    }
-  }
-});
+window.addEventListener("click", handleInteraction);
+window.addEventListener("click", handleInteraction);
 
 function playHoverAnimation(object, isHovering) {
   gsap.killTweensOf(object.scale);
