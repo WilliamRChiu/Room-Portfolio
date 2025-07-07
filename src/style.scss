@@ -1,10 +1,15 @@
 @use "./styles/resets.scss";
-*{
+@use "./styles/variables.scss" as *;
+
+* {
   margin: 0;
   box-sizing: border-box;
   padding: 0;
 }
 
+html, body {
+  overflow: hidden;
+}
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -21,33 +26,79 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-//Experience
-
+// Experience
 #experience {
-  position:fixed;
-  height:100%;
-  width:100%;
-  top:0;
-  left:0;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
   overflow: hidden;
+
   #experience-canvas {
     height: 100%;
     width: 100%;
   }
 }
 
+// Modals
+.modal-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background-color: rgba($base-black, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  overflow-y: auto;
+}
 
-//Modals
-
-.modal{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 32px;
-  max-width: 700px;
+.modal {
+  position: relative;
+  max-width: 1050px;
   width: 100%;
-  z-index: 999;
-  display: none;
-  background-color:rgba(241, 145, 145, 0.87);
+  background-color: $base-white;
+  border: 1px solid $base-purple-200; // soft periwinkle border
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba($base-black, 0.25);
+  font-family: 'Inter', sans-serif;
+  color: $base-black;
+  animation: fadeInScale 0.3s ease;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-title {
+  font-family: 'Figtree', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: $base-purple; // cooler muted purple-blue
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.modal button {
+  background: none;
+  border: none;
+  color: $base-purple;
+  cursor: pointer;
+  font-size: 2.5rem;
+  line-height: 1;
+  padding: 0.5rem;
+  transition: color 0.2s;
+}
+
+.modal button:hover {
+  color: $base-pastel-teal; // subtle masculine accent
 }

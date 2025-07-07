@@ -1,0 +1,42 @@
+// Purples / Blues
+$base-dark-purple:     #4a3f6e;   // deeper, cooler purple
+$base-purple:          #5965a3;   // desaturated blue-purple
+$base-purple-200:      #b3bdd6;   // soft muted periwinkle
+$base-light-purple:    #d9e0ef;   // pastel bluish lavender
+
+// Blues / Teals
+$base-pastel-blue:     #c9dff2;   // soft airy blue
+$base-pastel-teal:     #c3e4e0;   // muted minty teal
+
+// Greens
+$base-pastel-green:    #d1ead1;   // pale desaturated green
+
+// Neutrals
+$base-black:           #121212;   // near-black
+$base-dark-gray:       #2c2c2c;   // dark gray
+$base-gray:            #9a9a9a;   // medium gray
+$base-light-gray:      #e5e5e5;   // lighter gray
+$base-white:           #fdfdfd;   // clean white
+
+// Accent Yellow
+$base-pastel-yellow:   #fdf5d9;
+
+// Pastel Reds (new, softer)
+$base-pastel-red:      #f2d3d2;   // light pastel red
+$base-pastel-red-200:  #f6e1e0;   // very pale pastel red
+$base-pastel-rust:     #e6c1bb;   // muted warm pastel coral/rust
+
+// Accent Coral
+$base-pastel-coral:    #eacfcf;
+
+// Alternative set for variations if needed
+$base-dark-purple-2:   #4a3f6e;
+$base-purple-2:        #5965a3;
+$base-purple-200-2:    #b3bdd6;
+$base-light-purple-2:  #d9e0ef;
+
+@mixin centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

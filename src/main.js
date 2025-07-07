@@ -1,4 +1,5 @@
 import "./style.scss";
+import "./ui.jsx";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
@@ -24,75 +25,6 @@ const socialLinks = {
   Linkedin: "https://www.linkedin.com/in/williamrchiu/",
 };
 
-const modals = {
-  projects: document.querySelector(".modal.projects"),
-  about: document.querySelector(".modal.about"),
-  contact: document.querySelector(".modal.contact"),
-  resume: document.querySelector(".modal.resume"),
-};
-
-let isModalOpen = false;
-
-const showModal = (modal) => {
-  modal.style.display = "block";
-  isModalOpen = true;
-  controls.enabled = false;
-
-  if (currentHoveredOject) {
-    playHoverAnimation(currentHoveredOject, false);
-    currentHoveredOject = null;
-  }
-  document.body.style.cursor = "default";
-  currentIntersects = [];
-  //need to set gsap animation initial states to avoid gitches
-  gsap.set(modal, { opacity: 0 });
-  gsap.to(modal, {
-    opacity: 1,
-    duration: 0.5,
-  });
-};
-
-const hideModal = (modal) => {
-  modal.style.display = "block";
-  isModalOpen = false;
-  controls.enabled = true;
-  //need to set gsap animation initial states to avoid gitches
-  gsap.set(modal, { opacity: 1 });
-  gsap.to(modal, {
-    opacity: 0,
-    duration: 0.5,
-    onComplete: () => {
-      modal.style.display = "none";
-    },
-  });
-};
-
-let touchHappened = false;
-
-document.querySelectorAll(".modal-exit-button").forEach((button) => {
-  button.addEventListener(
-    "touchend",
-    (e) => {
-      touchHappened = true;
-      //search for the closest parent modal and close it
-      const targetModal = e.target.closest(".modal");
-      hideModal(targetModal);
-    },
-    { passive: false }
-  );
-
-  button.addEventListener(
-    "click",
-    (e) => {
-      if (touchHappened) return;
-      //search for the closest parent modal and close it
-      const targetModal = e.target.closest(".modal");
-      hideModal(targetModal);
-    },
-    { passive: false }
-  );
-});
-
 /*Loaders*/
 const textureLoader = new THREE.TextureLoader();
 
@@ -114,6 +46,11 @@ const textureMap = {
 
 const loaderTextures = {
   day: {},
+};
+
+const openModalAndLock = (name) => {
+  controls.enabled = false;      // freeze OrbitControls
+  window.openModal(name);        // function comes from ui.jsx
 };
 
 Object.entries(textureMap).forEach(([key, paths]) => {
@@ -178,6 +115,7 @@ controls.target.set(
   0.8632929503333462,
   -18.317494451055623
 );
+window.controls = controls;
 //ensure cam cant go below floor
 controls.minPolarAngle = 0;
 
@@ -209,7 +147,7 @@ window.addEventListener("resize", () => {
 });
 
 window.addEventListener("mousemove", (e) => {
-  touchHappened = false; //hack for closing window but it works
+  if (window.isModalOpen) return;
   pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 });
@@ -218,7 +156,7 @@ window.addEventListener("mousemove", (e) => {
 window.addEventListener(
   "touchstart",
   (e) => {
-    if (isModalOpen) return;
+    if (window.isModalOpen) return;
     e.preventDefault();
     //0 gets first finger that touches the screen
     pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
@@ -227,42 +165,17 @@ window.addEventListener(
   { passive: false }
 );
 
-function handleRaycasterInteration() {
-  if (currentIntersects.length) {
-    const hit = currentIntersects[0].object;
-    if (hit.name.includes("Projects_Button")) {
-      showModal(modals.projects);
-    } else if (hit.name.includes("About_Button")) {
-      showModal(modals.about);
-    } else if (hit.name.includes("Contact_Button")) {
-      showModal(modals.contact);
-    } else if (hit.name.includes("Resume_Button")) {
-      showModal(modals.resume);
-    }
-  }
-}
-
-window.addEventListener(
-  "touchend",
-  (e) => {
-    if (isModalOpen) return;
-    e.preventDefault();
-    handleRaycasterInteration();
-  },
-  { passive: false }
-);
-
 window.addEventListener("click", (e) => {
   if (currentIntersects.length) {
     const hit = currentIntersects[0].object;
     if (hit.name.includes("Projects_Button")) {
-      showModal(modals.projects);
+      openModalAndLock("Projects");
     } else if (hit.name.includes("About_Button")) {
-      showModal(modals.about);
+      openModalAndLock("About");
     } else if (hit.name.includes("Contact_Button")) {
-      showModal(modals.contact);
+      openModalAndLock("Contact");
     } else if (hit.name.includes("Resume_Button")) {
-      showModal(modals.resume);
+      openModalAndLock("Resume");
     }
   }
 });
@@ -308,7 +221,7 @@ const render = () => {
 
   currentIntersects = raycaster.intersectObjects(raycasterObjects);
 
-  if (!isModalOpen) {
+  if (!window.isModalOpen) {
     if (currentIntersects.length > 0) {
       const currentIntersectedObject = currentIntersects[0].object;
 

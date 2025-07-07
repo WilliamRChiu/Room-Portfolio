@@ -1,0 +1,15 @@
+{
+    "Voice Controlled Wheelchair": {
+        "title": "Voice Controlled Wheelchair",
+        "description": "Prototyped a semi autonomous wheelchair that included obstacle detection, LiDAR, and speech commands",
+        "codeUrl": "https://github.com/raphael-64/voice-controlled-wheelchair",
+        "tech": ["Bash", "Raspberry PI", "Vosk", "Python", "Netcat"]
+    },
+    "Quantum Computing Power Loss Minimization Algorithm": {
+        "title": "Quantum Computing Power Loss Minimization Algorithm",
+        "description": "Developed a cloud-based quantum computing solution to minimize power loss in energy grids. The project introduced a depth-first search approach with a custom edge-weighting formula and received a National Silver Medal, the Energy Challenge Award, and the Hydrogen-Optimized Award.",
+        "codeUrl": "https://github.com/WilliamRChiu/Science-Fair-Project",
+        "tech": ["Python", "Dwave Library"]
+    }
+
+}
