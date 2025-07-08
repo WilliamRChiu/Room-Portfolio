@@ -5,6 +5,7 @@ import "./style.scss";
 import ProjectsModal from "./Modals/ProjectsModal/ProjectsModal";
 import ResumeModal from "./Modals/ResumeModal/ResumeModal";
 import Loader from "./Common/Loader/Loader";
+import AboutModal from "./Modals/AboutModal/AboutModal";
 
 /* ---------------- modal component ---------------- */
 function Modal({ type, onClose }) {
@@ -36,7 +37,7 @@ function Modal({ type, onClose }) {
         </button>
         <h1 className="modal-title">{`${type}`}</h1>
         {type === "Projects" && <ProjectsModal/>}
-        {type === "About" && <p>About me modal 👋</p>}
+        {type === "About" && <AboutModal/>}
         {type === "Contact" && <p>Contact modal 📫</p>}
         {type === "Resume" && <ResumeModal/>}
       </div>
