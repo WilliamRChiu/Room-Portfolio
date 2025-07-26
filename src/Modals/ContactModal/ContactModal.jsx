@@ -20,10 +20,8 @@ export default function ContactModal() {
     message: "",
   });
 
-  /* UX status: "idle" | "sending" | "ok" | "error" */
   const [status, setStatus] = useState("idle");
 
-  /* -------------------------------- handlers ------------------------------ */
   const handleChange = (e) =>
     setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -41,7 +39,6 @@ export default function ContactModal() {
     }
   };
 
-  /* -------------------------------- render -------------------------------- */
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.form}>

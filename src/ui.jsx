@@ -11,41 +11,47 @@ import ContactModal from "./Modals/ContactModal/ContactModal";
 /* ---------------- modal component ---------------- */
 function Modal({ type, onClose }) {
   useEffect(() => {
-    gsap.fromTo(
-      ".modal-wrapper",
-      { opacity: 0 },
-      { opacity: 1, duration: 0.4 }
-    );
+    gsap.fromTo(".modal-wrapper", { opacity: 0 }, { opacity: 1, duration: 0.4 });
   }, []);
 
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      onClose();
-    }
-  });
+  useEffect(() => {
+    const handleKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
 
   if (!type) return null;
 
+  const closeEvent = (e) => {
+    e.stopPropagation();
+    onClose();
+  };
+
   return (
-    <div className="modal-wrapper">
-      <div className={`${type} modal`}>
+    <div className="modal-wrapper" onClick={closeEvent} onTouchEnd={closeEvent}>
+      <div
+        className={`${type} modal`}
+        onClick={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
         <button
           aria-label="Close modal"
           className="absolute right-4 top-4 text-2xl font-bold"
-          onClick={onClose}
+          onClick={closeEvent}
+          onTouchEnd={closeEvent}
         >
           ×
         </button>
-        <h1 className="modal-title">{`${type}`}</h1>
-        {type === "Projects" && <ProjectsModal/>}
-        {type === "About" && <AboutModal/>}
-        {type === "Contact" && <ContactModal/>}
-        {type === "Resume" && <ResumeModal/>}
+
+        <h1 className="modal-title">{type}</h1>
+        {type === "Projects" && <ProjectsModal />}
+        {type === "About"    && <AboutModal />}
+        {type === "Contact"  && <ContactModal />}
+        {type === "Resume"   && <ResumeModal />}
       </div>
     </div>
   );
 }
-
 /* ------------- bridge so vanilla JS can open modals ------------- */
 function UIBridge() {
   const [modal, setModal] = useState(null);
