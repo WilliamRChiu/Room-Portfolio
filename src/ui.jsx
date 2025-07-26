@@ -6,6 +6,7 @@ import ProjectsModal from "./Modals/ProjectsModal/ProjectsModal";
 import ResumeModal from "./Modals/ResumeModal/ResumeModal";
 import Loader from "./Common/Loader/Loader";
 import AboutModal from "./Modals/AboutModal/AboutModal";
+import ContactModal from "./Modals/ContactModal/ContactModal";
 
 /* ---------------- modal component ---------------- */
 function Modal({ type, onClose }) {
@@ -38,7 +39,7 @@ function Modal({ type, onClose }) {
         <h1 className="modal-title">{`${type}`}</h1>
         {type === "Projects" && <ProjectsModal/>}
         {type === "About" && <AboutModal/>}
-        {type === "Contact" && <p>Contact modal 📫</p>}
+        {type === "Contact" && <ContactModal/>}
         {type === "Resume" && <ResumeModal/>}
       </div>
     </div>

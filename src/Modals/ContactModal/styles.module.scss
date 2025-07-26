@@ -1,0 +1,144 @@
+
+   @use "../../styles/variables.scss" as *;
+   @use "sass:color";
+
+   /* soft panel floating above the 3‑D canvas */
+   .container {
+     background: $base-white;             /* clean pastel white */
+     padding: 2rem;
+     border-radius: 1.25rem;
+     max-width: 480px;
+     margin: 0 auto;
+     box-shadow: 0 6px 28px rgba($base-black, 0.08);
+   }
+   
+   /* -------------------------------------------------- */
+   /* Typography                                         */
+   /* -------------------------------------------------- */
+   
+   $title-accent: $base-purple-200;       /* soft periwinkle for headings */
+   
+   .title {
+     color: $base-purple;                 /* desaturated blue‑purple */
+     font-size: 1.5rem;
+     font-weight: 600;
+     letter-spacing: 0.015em;
+     margin-bottom: 0.75rem;
+     text-align: center;
+   }
+   
+   h3 {
+     margin-bottom: 0.5rem;
+     font-size: 0.85rem;
+     font-weight: 500;
+     letter-spacing: 0.03em;
+     color: $base-gray;                   /* medium gray */
+   }
+   
+   /* -------------------------------------------------- */
+   /* Form                                               */
+   /* -------------------------------------------------- */
+   
+   .form {
+     display: flex;
+     flex-direction: column;
+     gap: 0.75rem;
+   }
+   
+   input,
+   textarea {
+     width: 100%;
+     padding: 0.75rem;
+     border: 1px solid $base-light-purple; /* light lavender stroke */
+     border-radius: 0.5rem;
+     background: $base-light-purple;       /* pastel lavender fill */
+     font-size: 0.9rem;
+     transition: border-color 0.2s, background 0.2s;
+   
+     &:focus {
+       outline: none;
+       border-color: $base-purple;         /* stronger focus ring */
+       background: color.mix($base-white, $base-light-purple, 70%);
+     }
+   }
+   
+   /* -------------------------------------------------- */
+   /* Submit button — compact pastel pill                */
+   /* -------------------------------------------------- */
+   
+   .submitButton {
+    /* core visuals */
+    background: $base-purple-200;
+    color: $base-dark-purple;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.65rem;          
+    font-weight: 100;
+    border: none;
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 6px rgba($base-black, 0.08);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  
+    /* NEW: half‑width pill and centered */
+    width: 50%;
+    margin-inline: auto;           /* centers inside the form */
+  
+    &:hover {
+      background: color.adjust($base-purple-200, $lightness: -8%);
+      transform: translateY(-1px);
+    }
+  
+    &:active {
+      transform: translateY(0);
+    }
+  }
+   
+   /* -------------------------------------------------- */
+   /* Social links                                       */
+   /* -------------------------------------------------- */
+   
+   .socialMedia {
+     margin-top: 1.75rem;
+     text-align: center;
+   
+     .icons {
+       display: flex;
+       justify-content: center;
+       gap: 1rem;
+   
+       a {
+         display: inline-block;
+         transition: transform 0.25s;
+   
+         &:hover {
+           transform: translateY(-2px) scale(1.05);
+         }
+   
+         img {
+           width: 28px;
+           height: 28px;
+           filter: grayscale(40%) brightness(90%);
+           transition: filter 0.25s;
+   
+           /* colourize on hover for playful feel */
+           a:hover & {
+             filter: none;
+           }
+         }
+       }
+     }
+   }
+
+   .success {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: $base-pastel-green;
+  }
+  
+  .error {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: $base-pastel-red;
+  }
+  
+   

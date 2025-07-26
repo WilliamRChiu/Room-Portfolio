@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
+import About from "../../Locales/About.json"
 
 export default function AboutModal() {
   const images = [
@@ -34,7 +35,7 @@ export default function AboutModal() {
       </div>
       <div className={styles.divider} />
       <div className={styles.right}>
-        <p className={styles.description}>About me text goes here.</p>
+        <p className={styles.description}>{About.Description}</p>
       </div>
     </div>
   );
