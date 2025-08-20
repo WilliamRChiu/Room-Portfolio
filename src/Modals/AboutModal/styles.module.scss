@@ -7,6 +7,11 @@
   gap: 2rem;
   padding: 2rem;
   flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    max-width: 480px;
+    max-height: 70vh;
+  }
 }
 
 .left,

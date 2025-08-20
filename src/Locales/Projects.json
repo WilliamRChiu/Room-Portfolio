@@ -5,11 +5,11 @@
         "codeUrl": "https://github.com/raphael-64/voice-controlled-wheelchair",
         "tech": ["Bash", "Raspberry PI", "Vosk", "Python", "Netcat"]
     },
-    "Quantum Computing Power Loss Minimization Algorithm": {
-        "title": "Quantum Computing Power Loss Minimization Algorithm",
-        "description": "Developed a cloud-based quantum computing solution to minimize power loss in energy grids. The project introduced a depth-first search approach with a custom edge-weighting formula and received a National Silver Medal, the Energy Challenge Award, and the Hydrogen-Optimized Award.",
-        "codeUrl": "https://github.com/WilliamRChiu/Science-Fair-Project",
-        "tech": ["Python", "Dwave Library"]
+    "Voice Controlled Browser Agent": {
+        "title": "Voice Controlled Browser Agent",
+        "description": "Developed a voice controlled browser agent for the blind that included a websocket for concurrent communication of commands between front and back end, Google Gemini API integration, and touchless page navigation",
+        "codeUrl": "https://github.com/kongchenglc/GenAIGenesis",
+        "tech": ["FastAPI", "Google Gemini", "pytorch", "JavaScript"] 
     }
-
+    
 }
