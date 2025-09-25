@@ -33,6 +33,9 @@ function Modal({ type, onClose }) {
         className={`${type} modal`}
         onClick={(e) => e.stopPropagation()}
         onTouchEnd={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
       >
         <button
           aria-label="Close modal"
@@ -43,11 +46,13 @@ function Modal({ type, onClose }) {
           ×
         </button>
 
-        <h1 className="modal-title">{type}</h1>
-        {type === "Projects" && <ProjectsModal />}
-        {type === "About"    && <AboutModal />}
-        {type === "Contact"  && <ContactModal />}
-        {type === "Resume"   && <ResumeModal />}
+        <h1 id="modal-title" className="modal-title">{type}</h1>
+        <div className="modal-body">
+          {type === "Projects" && <ProjectsModal />}
+          {type === "About"    && <AboutModal />}
+          {type === "Contact"  && <ContactModal />}
+          {type === "Resume"   && <ResumeModal />}
+        </div>
       </div>
     </div>
   );

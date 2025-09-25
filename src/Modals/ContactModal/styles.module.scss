@@ -7,14 +7,12 @@
   padding: clamp(1.15rem, 0.9rem + 1.4vw, 2rem);
   border-radius: 0.75rem;
   width: min(100%, 480px);
-  max-height: 70vh;
   margin: 0 auto;
   box-shadow: 0 6px 28px rgba($base-black, 0.08);
   border: 1px solid $base-purple-200;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  overflow-y: auto;
 }
    
 /* -------------------------------------------------- */
@@ -176,12 +174,8 @@ textarea {
 
   .container {
     width: 100%;
-    max-height: calc(100vh - 5.5rem);
-    max-height: calc(100dvh - 5.5rem);
     border-radius: 0.65rem;
     gap: 1.25rem;
-    overflow-y: auto;
-    overscroll-behavior: contain;
     padding: clamp(1rem, 0.75rem + 2.8vw, 1.6rem);
   }
 
