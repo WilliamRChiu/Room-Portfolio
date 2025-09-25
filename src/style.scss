@@ -86,12 +86,12 @@ html, body {
   font-family: 'Figtree', sans-serif;
   font-size: 1.75rem;
   font-weight: 600;
-  color: $base-purple; // cooler muted purple-blue
+  color: $base-purple; 
   margin-bottom: 1rem;
   text-align: center;
 }
 
-.modal button {
+.modal > button {
   background: none;
   border: none;
   color: $base-purple;
@@ -102,6 +102,6 @@ html, body {
   transition: color 0.2s;
 }
 
-.modal button:hover {
-  color: $base-pastel-teal; // subtle masculine accent
+.modal > button:hover {
+  color: $base-pastel-teal; 
 }
