@@ -26,6 +26,17 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Remove blue tap flash on mobile (iOS/Android) */
+@media (pointer: coarse) {
+  a,
+  button,
+  .modal-wrapper,
+  .modal,
+  .modal * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 // Experience
 #experience {
   position: fixed;
@@ -80,6 +91,8 @@ html, body {
   flex: 1;
   overflow-y: auto;
   padding-right: clamp(0.15rem, 0.5vw, 0.75rem);
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 @keyframes fadeInScale {

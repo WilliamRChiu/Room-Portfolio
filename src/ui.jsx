@@ -28,11 +28,10 @@ function Modal({ type, onClose }) {
   };
 
   return (
-    <div className="modal-wrapper" onClick={closeEvent} onTouchEnd={closeEvent}>
+    <div className="modal-wrapper" onClick={closeEvent}>
       <div
         className={`${type} modal`}
         onClick={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
@@ -41,7 +40,6 @@ function Modal({ type, onClose }) {
           aria-label="Close modal"
           className="absolute right-4 top-4 text-2xl font-bold"
           onClick={closeEvent}
-          onTouchEnd={closeEvent}
         >
           ×
         </button>
@@ -64,8 +62,16 @@ function UIBridge() {
 
   useEffect(() => {
     // expose helpers globally
-    window.openModal = (name) => setModal(name);
-    window.closeModal = () => setModal(null);
+    window.openModal = (name) => {
+      setModal(name);
+      window.isModalOpen = true;
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeModal = () => {
+      setModal(null);
+      window.isModalOpen = false;
+      document.body.style.overflow = '';
+    };
 
     //make the loading available to 3.js
     window.hideLoader = () => setLoading(false);
@@ -78,6 +84,8 @@ function UIBridge() {
         type={modal}
         onClose={() => {
             setModal(null);
+            window.isModalOpen = false;
+            document.body.style.overflow = '';
             if (window.controls) window.controls.enabled = true; // re-enable orbit
         }}
         />
