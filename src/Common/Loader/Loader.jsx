@@ -6,6 +6,7 @@ export default function Loader() {
     <div className={styles.loaderWrapper}>
       <div className={styles.spinner}></div>
       <p className={styles.text}>Loading...</p>
+      <p className={styles.subtext}>For the best viewing experience, use desktop.</p>
     </div>
   );
 }

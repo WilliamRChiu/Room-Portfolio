@@ -3,26 +3,25 @@
 
 
 .container {
-  background: $base-white;            
+  background: $cream-100;
   padding: clamp(1.15rem, 0.9rem + 1.4vw, 2rem);
+  padding-bottom: clamp(1.5rem, 1.25rem + 1.5vw, 2.5rem);
   border-radius: 0.75rem;
   width: min(100%, 480px);
   margin: 0 auto;
-  box-shadow: 0 6px 28px rgba($base-black, 0.08);
-  border: 1px solid $base-purple-200;
+  box-shadow: 0 4px 20px rgba($text-primary, 0.05);
+  border: 1px solid $cream-300;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
-   
+
 /* -------------------------------------------------- */
 /* Typography                                         */
 /* -------------------------------------------------- */
 
-$title-accent: $base-purple-200;      
-
 .title {
-  color: $base-purple;                
+  color: $blue-400;
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: 0.015em;
@@ -35,9 +34,9 @@ h3 {
   font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 0.03em;
-  color: $base-dark-purple;
+  color: $text-secondary;
 }
-   
+
 /* -------------------------------------------------- */
 /* Form                                               */
 /* -------------------------------------------------- */
@@ -54,7 +53,7 @@ h3 {
   gap: 0.4rem;
   font-size: 0.95rem;
   font-weight: 500;
-  color: $base-dark-purple;
+  color: $text-secondary;
   letter-spacing: 0.01em;
 }
 
@@ -62,45 +61,50 @@ input,
 textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid $base-light-purple; /* light lavender stroke */
+  border: 1px solid $cream-300;
   border-radius: 0.5rem;
-  background: $base-light-purple;       /* pastel lavender fill */
+  background: $cream-50;
   font-size: 0.95rem;
   font-family: inherit;
   line-height: 1.45;
   letter-spacing: 0.01em;
+  color: $text-primary;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: $text-muted;
+  }
 
   &:focus {
     outline: none;
-    border-color: $base-purple;         /* stronger focus ring */
-    background: color.mix($base-white, $base-light-purple, 70%);
-    box-shadow: 0 0 0 3px rgba($base-purple-200, 0.35);
+    border-color: $blue-300;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba($blue-200, 0.4);
   }
 }
-   
+
 /* -------------------------------------------------- */
-/* Submit button — compact pastel pill                 */
+/* Submit button — modern cream/blue pill             */
 /* -------------------------------------------------- */
 
 .submitButton {
-  /* core visuals */
-  background: $base-purple-200;
-  color: $base-dark-purple;
+  background: $blue-300;
+  color: #fff;
   padding: 0.85rem 1.5rem;
   font-size: 0.9rem;
   font-weight: 600;
   border: none;
   border-radius: 999px;
-  box-shadow: 0 2px 6px rgba($base-black, 0.08);
+  box-shadow: 0 2px 8px rgba($blue-400, 0.2);
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   width: 100%;
   align-self: center;
 
   &:hover {
-    background: color.adjust($base-purple-200, $lightness: -8%);
+    background: $blue-400;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($blue-400, 0.25);
   }
 
   &:active {
@@ -109,10 +113,10 @@ textarea {
 
   &:disabled {
     cursor: progress;
-    opacity: 0.85;
+    opacity: 0.7;
   }
 }
-   
+
 /* -------------------------------------------------- */
 /* Social links                                       */
 /* -------------------------------------------------- */
@@ -137,7 +141,7 @@ textarea {
       img {
         width: 28px;
         height: 28px;
-        filter: grayscale(40%) brightness(90%);
+        filter: grayscale(30%) brightness(95%);
         transition: filter 0.25s;
 
         /* colourize on hover for playful feel */
@@ -152,15 +156,17 @@ textarea {
 .success {
   margin-top: 0.75rem;
   font-size: 0.85rem;
-  color: $base-pastel-green;
+  color: $success;
   text-align: center;
+  font-weight: 500;
 }
 
 .error {
   margin-top: 0.75rem;
   font-size: 0.85rem;
-  color: $base-pastel-red;
+  color: $error;
   text-align: center;
+  font-weight: 500;
 }
 
 @media (max-width: 900px) {
@@ -170,30 +176,45 @@ textarea {
 
   h3 {
     font-size: 0.9rem;
+    margin-bottom: 0.25rem;
   }
 
   .container {
     width: 100%;
     border-radius: 0.65rem;
-    gap: 1.25rem;
-    padding: clamp(1rem, 0.75rem + 2.8vw, 1.6rem);
+    gap: 0.75rem;
+    padding: clamp(0.75rem, 0.5rem + 2vw, 1.25rem);
   }
 
   .form {
-    gap: 0.9rem;
+    gap: 0.6rem;
   }
 
   .form label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    gap: 0.25rem;
   }
 
   input,
   textarea {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  textarea {
+    min-height: 60px;
+    max-height: 80px;
+    resize: none;
   }
 
   .submitButton {
-    font-size: clamp(0.8rem, 0.75rem + 0.5vw, 0.95rem);
+    font-size: clamp(0.8rem, 0.75rem + 0.5vw, 0.9rem);
+    padding: 0.65rem 1.25rem;
+    margin-top: 0.25rem;
+  }
+
+  .socialMedia {
+    margin-top: 0.25rem;
   }
 
   .socialMedia .icons {
@@ -201,9 +222,13 @@ textarea {
   }
 
   .socialMedia .icons img {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .success,
+  .error {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
   }
 }
-  
-   

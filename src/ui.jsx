@@ -8,6 +8,7 @@ import Loader from "./Common/Loader/Loader";
 import AboutModal from "./Modals/AboutModal/AboutModal";
 import ContactModal from "./Modals/ContactModal/ContactModal";
 
+
 /* ---------------- modal component ---------------- */
 function Modal({ type, onClose }) {
   useEffect(() => {
@@ -73,7 +74,7 @@ function UIBridge() {
       document.body.style.overflow = '';
     };
 
-    //make the loading available to 3.js
+    // make the loading available to 3.js
     window.hideLoader = () => setLoading(false);
   }, []);
 

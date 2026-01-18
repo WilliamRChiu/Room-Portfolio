@@ -1,9 +1,10 @@
 @use "../../styles/variables.scss" as *;
 
 .resumeContainer {
-  background-color: $base-pastel-yellow;
+  background-color: $cream-100;
   padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
   border-radius: 1rem;
+  border: 1px solid $cream-300;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,22 +16,25 @@
 }
 
 .iframe {
-  border: 1px solid $base-purple-200;
+  border: 1px solid $cream-300;
   border-radius: 0.75rem;
   width: 100%;
 }
 
 .downloadButton {
   margin-top: 1rem;
-  padding: 0.5rem 1.25rem;
-  background: $base-pastel-blue;
-  color: $base-black;
+  padding: 0.6rem 1.5rem;
+  background: $blue-300;
+  color: #fff;
   text-decoration: none;
-  border-radius: 0.5rem;
+  border-radius: 999px;
   font-weight: 500;
-  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba($blue-400, 0.2);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
 
   &:hover {
-    background: $base-pastel-teal;
+    background: $blue-400;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($blue-400, 0.25);
   }
 }

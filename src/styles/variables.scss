@@ -1,39 +1,56 @@
-// Purples / Blues
-$base-dark-purple:     #4a3f6e;   // deeper, cooler purple
-$base-purple:          #5965a3;   // desaturated blue-purple
-$base-purple-200:      #b3bdd6;   // soft muted periwinkle
-$base-light-purple:    #d9e0ef;   // pastel bluish lavender
+// ============================================
+// Modern Cream & Soft Blue Color System
+// ============================================
+// A calm, minimal, premium palette built around
+// warm cream neutrals and light desaturated blues
 
-// Blues / Teals
-$base-pastel-blue:     #c9dff2;   // soft airy blue
-$base-pastel-teal:     #c3e4e0;   // muted minty teal
+// Cream Neutrals (backgrounds & surfaces)
+$cream-50:         #fdfcfa;   // lightest cream - primary background
+$cream-100:        #f8f5f1;   // light warm cream - cards/surfaces
+$cream-200:        #f0ebe4;   // medium cream - subtle backgrounds
+$cream-300:        #e5dfd6;   // darker cream - low-contrast borders
+$cream-400:        #d4ccc1;   // muted cream - stronger borders
 
-// Greens
-$base-pastel-green:    #d1ead1;   // pale desaturated green
+// Soft Blues (accents & interactive)
+$blue-50:          #f2f6f9;   // very pale blue - subtle highlights
+$blue-100:         #e4ecf2;   // light blue - focus backgrounds
+$blue-200:         #c5d6e3;   // soft blue - secondary accents
+$blue-300:         #94b3c9;   // medium blue - primary interactive
+$blue-400:         #7199b3;   // stronger blue - hover states
+$blue-500:         #5a8299;   // deep blue - active/pressed
 
-// Neutrals
-$base-black:           #121212;   // near-black
-$base-dark-gray:       #2c2c2c;   // dark gray
-$base-gray:            #9a9a9a;   // medium gray
-$base-light-gray:      #e5e5e5;   // lighter gray
-$base-white:           #fdfdfd;   // clean white
+// Typography (soft, not pure black)
+$text-primary:     #3a3a3a;   // soft dark - main text
+$text-secondary:   #5c5c5c;   // medium gray - headings, labels
+$text-muted:       #8a8a8a;   // light gray - placeholders, hints
 
-// Accent Yellow
-$base-pastel-yellow:   #fdf5d9;
+// Functional Colors (softened)
+$success:          #7fb08d;   // soft sage green
+$success-light:    #e8f2eb;   // pale green background
+$error:            #c4908d;   // soft coral/rose
+$error-light:      #f8eeee;   // pale rose background
 
-// Pastel Reds (new, softer)
-$base-pastel-red:      #f2d3d2;   // light pastel red
-$base-pastel-red-200:  #f6e1e0;   // very pale pastel red
-$base-pastel-rust:     #e6c1bb;   // muted warm pastel coral/rust
+// Legacy aliases (for backward compatibility with existing code)
+$base-dark-purple:     $blue-500;
+$base-purple:          $blue-400;
+$base-purple-200:      $blue-200;
+$base-light-purple:    $cream-200;
 
-// Accent Coral
-$base-pastel-coral:    #eacfcf;
+$base-pastel-blue:     $blue-100;
+$base-pastel-teal:     $blue-300;
 
-// Alternative set for variations if needed
-$base-dark-purple-2:   #4a3f6e;
-$base-purple-2:        #5965a3;
-$base-purple-200-2:    #b3bdd6;
-$base-light-purple-2:  #d9e0ef;
+$base-pastel-green:    $success;
+$base-pastel-yellow:   $cream-100;
+$base-pastel-red:      $error;
+$base-pastel-red-200:  $error-light;
+$base-pastel-rust:     #d4b5ae;
+$base-pastel-coral:    #e0c8c4;
+
+$base-black:           $text-primary;
+$base-dark-gray:       $text-secondary;
+$base-gray:            $text-muted;
+$base-light-gray:      $cream-300;
+$base-white:           $cream-50;
 
 @mixin centered {
   display: flex;

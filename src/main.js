@@ -16,6 +16,7 @@ const sizes = {
 const raycasterObjects = [];
 let currentIntersects = [];
 let currentHoveredOject = null;
+let hoverDebounceTimer = null;
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -74,7 +75,7 @@ loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
       }
       if (child.name.includes("Hover")) {
         child.userData.initialScale = new THREE.Vector3().copy(child.scale);
-        child.userData.initialRotation = new THREE.Euler().copy(child.position);
+        child.userData.initialPosition = new THREE.Vector3().copy(child.position);
         child.userData.initialRotation = new THREE.Euler().copy(child.rotation);
       }
       Object.keys(textureMap).forEach((key) => {
@@ -150,6 +151,8 @@ function handleInteraction() {
       openModalAndLock("Contact");
     } else if (hit.name.includes("Resume_Button")) {
       openModalAndLock("Resume");
+    } else if (hit.name.toLowerCase().includes("headphone") || hit.name.toLowerCase().includes("spotify")) {
+      openModalAndLock("Spotify");
     }
   }
 }
@@ -199,32 +202,84 @@ function playHoverAnimation(object, isHovering) {
   gsap.killTweensOf(object.rotation);
   gsap.killTweensOf(object.position);
 
+  const isPokeball = object.name.toLowerCase().includes("pokeball");
+  const isName = object.name.toLowerCase().includes("name");
+
   if (isHovering) {
-    gsap.to(object.scale, {
-      x: object.userData.initialScale.x * 1.2,
-      y: object.userData.initialScale.y * 1.2,
-      z: object.userData.initialScale.z * 1.2,
-      duration: 0.5,
-      ease: "bounce.out(1.8)",
-    });
-    gsap.to(object.rotation, {
-      x: (object.userData.initialRotation.x * Math.PI) / 8,
-      duration: 0.5,
-      ease: "bounce.out(1.8)",
-    });
+    if (isName) {
+      // Name object: pulsing animation (bigger and smaller)
+      gsap.to(object.scale, {
+        x: object.userData.initialScale.x * 1.15,
+        y: object.userData.initialScale.y * 1.15,
+        z: object.userData.initialScale.z * 1.15,
+        duration: 0.5,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+      });
+    } else if (isPokeball) {
+      // Pokeball: lift up and bob gently
+      gsap.to(object.scale, {
+        x: object.userData.initialScale.x * 1.1,
+        y: object.userData.initialScale.y * 1.1,
+        z: object.userData.initialScale.z * 1.1,
+        duration: 0.4,
+        ease: "power2.out",
+      });
+
+      const hoverHeight = 0.15;
+      gsap.to(object.position, {
+        y: object.userData.initialPosition.y + hoverHeight,
+        duration: 0.4,
+        ease: "power2.out",
+        onComplete: () => {
+          gsap.to(object.position, {
+            y: object.userData.initialPosition.y + hoverHeight + 0.04,
+            duration: 0.8,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1,
+          });
+        },
+      });
+    } else {
+      // Other objects: original bounce animation
+      gsap.to(object.scale, {
+        x: object.userData.initialScale.x * 1.2,
+        y: object.userData.initialScale.y * 1.2,
+        z: object.userData.initialScale.z * 1.2,
+        duration: 0.5,
+        ease: "bounce.out(1.8)",
+      });
+      gsap.to(object.rotation, {
+        x: (object.userData.initialRotation.x * Math.PI) / 8,
+        duration: 0.5,
+        ease: "bounce.out(1.8)",
+      });
+    }
   } else {
+    // Return to original state
     gsap.to(object.scale, {
       x: object.userData.initialScale.x,
       y: object.userData.initialScale.y,
       z: object.userData.initialScale.z,
       duration: 0.3,
-      ease: "bounce.out(1.8)",
+      ease: (isPokeball || isName) ? "power2.out" : "bounce.out(1.8)",
     });
-    gsap.to(object.rotation, {
-      x: object.userData.initialRotation.x,
-      duration: 0.3,
-      ease: "bounce.out(1.8)",
-    });
+
+    if (isPokeball) {
+      gsap.to(object.position, {
+        y: object.userData.initialPosition.y,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+    } else if (!isName) {
+      gsap.to(object.rotation, {
+        x: object.userData.initialRotation.x,
+        duration: 0.3,
+        ease: "bounce.out(1.8)",
+      });
+    }
   }
 }
 
@@ -238,6 +293,12 @@ const render = () => {
   if (!window.isModalOpen) {
     if (currentIntersects.length > 0) {
       const currentIntersectedObject = currentIntersects[0].object;
+
+      // Clear any pending unhover timer since we're still on an object
+      if (hoverDebounceTimer) {
+        clearTimeout(hoverDebounceTimer);
+        hoverDebounceTimer = null;
+      }
 
       if (currentIntersectedObject.name.includes("Hover")) {
         if (currentIntersectedObject != currentHoveredOject) {
@@ -255,10 +316,16 @@ const render = () => {
         document.body.style.cursor = "default";
       }
     } else {
-      if (currentHoveredOject) {
-        //covers case of I am on hover object and then i leave it
-        playHoverAnimation(currentHoveredOject, false);
-        currentHoveredOject = null;
+      if (currentHoveredOject && !hoverDebounceTimer) {
+        // Debounce the unhover to prevent edge flickering
+        const objectToUnhover = currentHoveredOject;
+        hoverDebounceTimer = setTimeout(() => {
+          if (currentHoveredOject === objectToUnhover) {
+            playHoverAnimation(currentHoveredOject, false);
+            currentHoveredOject = null;
+          }
+          hoverDebounceTimer = null;
+        }, 50); // 50ms delay prevents edge flickering
       }
       document.body.style.cursor = "default";
     }
