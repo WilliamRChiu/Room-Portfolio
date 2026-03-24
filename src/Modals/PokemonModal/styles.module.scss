@@ -1,104 +1,128 @@
-@use "../../styles/variables.scss" as *;
-
-// Gen 4 inspired color palette
-$pkmn-bg: #3890c8;
-$pkmn-bg-light: #58b0e8;
-$pkmn-slot-bg: #4898d0;
-$pkmn-slot-border: #2878a8;
-$pkmn-slot-highlight: #68b8e8;
-$pkmn-lead-bg: #e88830;
-$pkmn-lead-border: #c06820;
+// FireRed / LeafGreen party screen palette
+$pkmn-bg: #48a8c0;
+$pkmn-bg-light: #58c0d8;
+$pkmn-panel: #588868;
+$pkmn-panel-light: #70a880;
+$pkmn-panel-border: #406850;
+$pkmn-lead-border: #d04040;
 $pkmn-text: #f8f8f8;
-$pkmn-text-shadow: rgba(0, 0, 0, 0.4);
-$pkmn-bar-bg: #383838;
-$pkmn-bar-outer: #585858;
-$pkmn-bottom-bg: #2a2a2a;
+$pkmn-text-shadow: rgba(0, 0, 0, 0.55);
 $pkmn-hp-label: #f8c830;
+$pkmn-bar-bg: #404038;
+$pkmn-bar-border: #303028;
+$pkmn-bottom-bg: #282828;
+$pkmn-textbox-bg: #f0f0e8;
+$pkmn-textbox-border: #484848;
 
 .container {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  background: linear-gradient(180deg, $pkmn-bg-light 0%, $pkmn-bg 100%);
+  // Teal bg + subtle diagonal stripe pattern (GBA screen texture)
+  background:
+    repeating-linear-gradient(
+      -55deg,
+      rgba(255, 255, 255, 0) 0px,
+      rgba(255, 255, 255, 0) 4px,
+      rgba(255, 255, 255, 0.04) 4px,
+      rgba(255, 255, 255, 0.04) 8px
+    ),
+    linear-gradient(180deg, $pkmn-bg-light 0%, $pkmn-bg 100%);
   border-radius: 0.75rem;
   overflow: hidden;
-  font-family: 'Inter', 'Figtree', sans-serif;
+  font-family: 'Press Start 2P', monospace;
 }
 
+// ---- staggered 2-column party grid ----
 .partyGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  column-gap: 0.5rem;
+  row-gap: 0.5rem;
   padding: 0.75rem;
+  padding-bottom: 2.5rem; // room for right-column offset
 }
 
-// Individual Pokemon slot
+// ---- individual slot ----
 .slot {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: linear-gradient(135deg, $pkmn-slot-highlight 0%, $pkmn-slot-bg 50%);
-  border: 2px solid $pkmn-slot-border;
+  gap: 0.35rem;
+  background: linear-gradient(150deg, $pkmn-panel-light 0%, $pkmn-panel 70%);
+  border: 2px solid $pkmn-panel-border;
   border-radius: 0.5rem;
-  padding: 0.5rem;
-  min-height: 72px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0.4rem 0.5rem;
+  min-height: 68px;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: filter 0.15s;
+
+  // right-column slots drop down for offset stagger
+  &:nth-child(even) {
+    transform: translateY(1.75rem);
+  }
 
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    filter: brightness(1.08);
   }
 }
 
 .leadSlot {
-  background: linear-gradient(135deg, #f0a040 0%, $pkmn-lead-bg 50%);
-  border-color: $pkmn-lead-border;
+  border: 3px solid $pkmn-lead-border;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 0 2px rgba($pkmn-lead-border, 0.25);
 }
 
 .emptySlot {
   background: rgba(0, 0, 0, 0.15);
-  border-color: rgba(0, 0, 0, 0.2);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  box-shadow: none;
   cursor: default;
 
   &:hover {
-    transform: none;
-    box-shadow: none;
+    filter: none;
   }
 }
 
-// Sprite area
+// ---- pokeball icon ----
+.pokeballIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+// ---- sprite ----
 .spriteArea {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .sprite {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   image-rendering: pixelated;
   object-fit: contain;
 }
 
 .spritePlaceholder {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 70%);
-  border: 2px dashed rgba(255, 255, 255, 0.3);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.08) 70%);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
 }
 
-// Info section
+// ---- info column ----
 .info {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.1rem;
 }
 
 .nameRow {
@@ -108,52 +132,56 @@ $pkmn-hp-label: #f8c830;
 }
 
 .name {
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.55rem;
+  font-weight: 400;
   color: $pkmn-text;
   text-shadow: 1px 1px 1px $pkmn-text-shadow;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .genderMale {
-  color: #78b8f8;
-  font-weight: 700;
-  font-size: 0.85rem;
+  color: #68b0f0;
+  font-weight: 400;
+  font-size: 0.55rem;
 }
 
 .genderFemale {
-  color: #f87878;
-  font-weight: 700;
-  font-size: 0.85rem;
+  color: #f07070;
+  font-weight: 400;
+  font-size: 0.55rem;
 }
 
-// HP Bar
+// ---- HP bar (label inside track like the game) ----
 .hpBarTrack {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  background: $pkmn-bar-bg;
+  border-radius: 3px;
+  border: 1px solid $pkmn-bar-border;
+  height: 10px;
+  overflow: hidden;
 }
 
 .hpLabel {
-  font-size: 0.55rem;
-  font-weight: 800;
+  padding: 0 0.2rem;
+  font-size: 0.35rem;
+  font-weight: 400;
   color: $pkmn-hp-label;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   flex-shrink: 0;
+  line-height: 1;
 }
 
 .hpBarOuter {
   flex: 1;
-  height: 6px;
-  background-color: $pkmn-bar-bg;
-  border-radius: 3px;
+  height: 5px;
+  background: #363630;
+  border-radius: 2px;
   overflow: hidden;
-  border: 1px solid $pkmn-bar-outer;
+  margin-right: 2px;
 }
 
 .hpBarFill {
@@ -174,42 +202,50 @@ $pkmn-hp-label: #f8c830;
   background: linear-gradient(180deg, #f85858 0%, #c83838 100%);
 }
 
-// Stats row (level + HP numbers)
+// ---- stats row ----
 .statsRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
 }
 
 .level {
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.4rem;
+  font-weight: 400;
   color: $pkmn-text;
   text-shadow: 1px 1px 1px $pkmn-text-shadow;
 }
 
 .hpNumbers {
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.5rem;
+  font-weight: 400;
   color: $pkmn-text;
   text-shadow: 1px 1px 1px $pkmn-text-shadow;
   font-variant-numeric: tabular-nums;
 }
 
-// Bottom bar
+// ---- bottom bar ----
 .bottomBar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background-color: $pkmn-bottom-bg;
-  padding: 0.6rem 0.75rem;
+  gap: 0.5rem;
+  background: $pkmn-bottom-bg;
+  padding: 0.5rem 0.75rem;
   border-top: 2px solid #1a1a1a;
 }
 
+.textBox {
+  flex: 1;
+  background: $pkmn-textbox-bg;
+  border: 2px solid $pkmn-textbox-border;
+  border-radius: 0.35rem;
+  padding: 0.4rem 0.6rem;
+}
+
 .chooseText {
-  font-size: 0.85rem;
-  color: $pkmn-text;
-  font-weight: 500;
+  font-size: 0.55rem;
+  color: #282828;
+  font-weight: 400;
 }
 
 .cancelBtn {
@@ -217,38 +253,45 @@ $pkmn-hp-label: #f8c830;
   color: $pkmn-text;
   border: 2px solid #385878;
   border-radius: 0.35rem;
-  padding: 0.3rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 700;
+  padding: 0.4rem 0.75rem;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  font-weight: 400;
   cursor: pointer;
-  letter-spacing: 0.05em;
-  transition: background 0.15s ease;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: filter 0.15s;
 
   &:hover {
-    background: linear-gradient(180deg, #7898c0 0%, #5878a0 100%);
+    filter: brightness(1.15);
   }
 }
 
-// Responsive
+// ---- responsive ----
 @media (max-width: 480px) {
   .partyGrid {
     grid-template-columns: 1fr;
     gap: 0.4rem;
     padding: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   .slot {
-    min-height: 60px;
+    min-height: 56px;
+
+    &:nth-child(even) {
+      transform: none;
+    }
   }
 
   .spriteArea {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
   }
 
   .sprite,
   .spritePlaceholder {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
   }
 }

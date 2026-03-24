@@ -2,6 +2,18 @@ import React from "react";
 import styles from "./styles.module.scss";
 import partyData from "../../Locales/Pokemon.json";
 
+function PokeballIcon() {
+  return (
+    <svg className={styles.pokeballIcon} viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="9" fill="#f0f0f0" stroke="#303030" strokeWidth="1.5" />
+      <path d="M1.1,10 A8.9,8.9 0 0,1 18.9,10 Z" fill="#e03030" />
+      <rect x="1" y="9.25" width="18" height="1.5" fill="#303030" />
+      <circle cx="10" cy="10" r="3" fill="#f0f0f0" stroke="#303030" strokeWidth="1.5" />
+      <circle cx="10" cy="10" r="1.2" fill="#303030" />
+    </svg>
+  );
+}
+
 function HpBar({ current, max }) {
   const ratio = max > 0 ? current / max : 0;
   let colorClass = styles.hpGreen;
@@ -36,6 +48,7 @@ function PokemonSlot({ data, index }) {
 
   return (
     <div className={`${styles.slot} ${isLead ? styles.leadSlot : ""}`}>
+      <PokeballIcon />
       <div className={styles.spriteArea}>
         {data.sprite ? (
           <img src={data.sprite} alt={data.name} className={styles.sprite} />
@@ -50,7 +63,7 @@ function PokemonSlot({ data, index }) {
         </div>
         <HpBar current={data.currentHp} max={data.maxHp} />
         <div className={styles.statsRow}>
-          <span className={styles.level}>Lv{data.level}</span>
+          <span className={styles.level}>Lv.{data.level}</span>
           <span className={styles.hpNumbers}>
             {data.currentHp}/{data.maxHp}
           </span>
@@ -61,7 +74,6 @@ function PokemonSlot({ data, index }) {
 }
 
 export default function PokemonModal() {
-  // Pad to 6 slots
   const party = [...partyData];
   while (party.length < 6) party.push(null);
 
@@ -73,7 +85,9 @@ export default function PokemonModal() {
         ))}
       </div>
       <div className={styles.bottomBar}>
-        <span className={styles.chooseText}>Choose a Pokemon.</span>
+        <div className={styles.textBox}>
+          <span className={styles.chooseText}>Choose a Pokémon.</span>
+        </div>
         <button className={styles.cancelBtn} onClick={() => window.closeModal()}>
           CANCEL
         </button>

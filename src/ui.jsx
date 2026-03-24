@@ -212,6 +212,25 @@ function MusicNoteOverlay({ position, onComplete }) {
 }
 
 /* -------------------- mini player -------------------- */
+function getTimeOfDayStyle() {
+  const hour = new Date().getHours();
+  const slots = [
+    { start: 0,  bg: "linear-gradient(135deg, #0c1022, #1a1a2e)", border: "#303050" },
+    { start: 5,  bg: "linear-gradient(135deg, #fad0c4, #f5c6aa)", border: "#d4a090" },
+    { start: 7,  bg: "linear-gradient(135deg, #ffecd2, #fcb69f)", border: "#d4a878" },
+    { start: 10, bg: "linear-gradient(135deg, #dfeef8, #a8d4e8)", border: "#88b8d0" },
+    { start: 14, bg: "linear-gradient(135deg, #ffeaa7, #fdcb6e)", border: "#d4a840" },
+    { start: 17, bg: "linear-gradient(135deg, #ff9a76, #e17055)", border: "#c85848" },
+    { start: 20, bg: "linear-gradient(135deg, #2d3561, #1e3c72)", border: "#4a5090" },
+    { start: 22, bg: "linear-gradient(135deg, #0c1022, #1a1a2e)", border: "#303050" },
+  ];
+  let match = slots[0];
+  for (let i = slots.length - 1; i >= 0; i--) {
+    if (hour >= slots[i].start) { match = slots[i]; break; }
+  }
+  return { background: match.bg, borderColor: match.border };
+}
+
 function MiniPlayer({ expanded, onCollapse, onDismiss, hidden }) {
   const [trayOpen, setTrayOpen] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -295,7 +314,7 @@ function MiniPlayer({ expanded, onCollapse, onDismiss, hidden }) {
         style={hiddenStyle}
       >
         {!expanded && (
-          <div className="mini-player-icon" onClick={handleIconClick} title="Now Playing">
+          <div className="mini-player-icon" onClick={handleIconClick} title="Now Playing" style={getTimeOfDayStyle()}>
             <span className="mini-player-note">♪</span>
           </div>
         )}
