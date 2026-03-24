@@ -10,6 +10,13 @@
         "description": "Developed a voice controlled browser agent for the blind that included a websocket for concurrent communication of commands between front and back end, Google Gemini API integration, and touchless page navigation",
         "codeUrl": "https://github.com/kongchenglc/GenAIGenesis",
         "tech": ["FastAPI", "Google Gemini", "pytorch", "JavaScript"] 
+    },
+    "Autonomous Bug Killing Robot": {
+        "title": "Autonomous Bug Killing Robot",
+        "description": "Currently building an autonomous bug killing robot using a Raspberry Pi, camera, and custom computer vision model to identify and eliminate bugs in a designated area",
+        "codeUrl": "https://github.com/WilliamRChiu/Bug-Killing-Robot",
+        "tech": ["Raspberry Pi", "Python", "C++", "OpenCV", "TensorFlow"]
     }
+    
     
 }

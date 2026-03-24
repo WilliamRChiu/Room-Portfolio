@@ -8,9 +8,9 @@ const socialMedia = [
   { name: "GitHub",   url: "https://github.com/WilliamRChiu",       icon: "/icons/github.svg"   },
 ];
 
-const SERVICE_ID  = "service_az7x5jq";
-const TEMPLATE_ID = "template_11o51ko";
-const PUBLIC_KEY  = "ZVgI7hbMCU-nHeeh5";
+const SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 export default function ContactModal() {
   const [formData, setFormData] = useState({
@@ -77,7 +77,7 @@ export default function ContactModal() {
           Message:
           <textarea
             name="message"
-            rows="5"
+            rows="3"
             value={formData.message}
             onChange={handleChange}
             required

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "PLACEHOLDER",
+    "level": 32,
+    "currentHp": 97,
+    "maxHp": 97,
+    "gender": "male",
+    "sprite": null
+  },
+  {
+    "name": "PLACEHOLDER",
+    "level": 31,
+    "currentHp": 101,
+    "maxHp": 101,
+    "gender": "male",
+    "sprite": null
+  },
+  {
+    "name": "PLACEHOLDER",
+    "level": 30,
+    "currentHp": 85,
+    "maxHp": 85,
+    "gender": "male",
+    "sprite": null
+  },
+  {
+    "name": "PLACEHOLDER",
+    "level": 30,
+    "currentHp": 90,
+    "maxHp": 90,
+    "gender": "female",
+    "sprite": null
+  },
+  {
+    "name": "PLACEHOLDER",
+    "level": 30,
+    "currentHp": 68,
+    "maxHp": 68,
+    "gender": "female",
+    "sprite": null
+  },
+  {
+    "name": "PLACEHOLDER",
+    "level": 18,
+    "currentHp": 58,
+    "maxHp": 58,
+    "gender": "female",
+    "sprite": null
+  }
+]

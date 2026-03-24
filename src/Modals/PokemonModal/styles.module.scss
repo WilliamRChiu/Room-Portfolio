@@ -1,0 +1,254 @@
+@use "../../styles/variables.scss" as *;
+
+// Gen 4 inspired color palette
+$pkmn-bg: #3890c8;
+$pkmn-bg-light: #58b0e8;
+$pkmn-slot-bg: #4898d0;
+$pkmn-slot-border: #2878a8;
+$pkmn-slot-highlight: #68b8e8;
+$pkmn-lead-bg: #e88830;
+$pkmn-lead-border: #c06820;
+$pkmn-text: #f8f8f8;
+$pkmn-text-shadow: rgba(0, 0, 0, 0.4);
+$pkmn-bar-bg: #383838;
+$pkmn-bar-outer: #585858;
+$pkmn-bottom-bg: #2a2a2a;
+$pkmn-hp-label: #f8c830;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: linear-gradient(180deg, $pkmn-bg-light 0%, $pkmn-bg 100%);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  font-family: 'Inter', 'Figtree', sans-serif;
+}
+
+.partyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+// Individual Pokemon slot
+.slot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, $pkmn-slot-highlight 0%, $pkmn-slot-bg 50%);
+  border: 2px solid $pkmn-slot-border;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  min-height: 72px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.leadSlot {
+  background: linear-gradient(135deg, #f0a040 0%, $pkmn-lead-bg 50%);
+  border-color: $pkmn-lead-border;
+}
+
+.emptySlot {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(0, 0, 0, 0.2);
+  cursor: default;
+
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+// Sprite area
+.spriteArea {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sprite {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.spritePlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 70%);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+// Info section
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: $pkmn-text;
+  text-shadow: 1px 1px 1px $pkmn-text-shadow;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.genderMale {
+  color: #78b8f8;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.genderFemale {
+  color: #f87878;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+// HP Bar
+.hpBarTrack {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.hpLabel {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: $pkmn-hp-label;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.hpBarOuter {
+  flex: 1;
+  height: 6px;
+  background-color: $pkmn-bar-bg;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid $pkmn-bar-outer;
+}
+
+.hpBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.hpGreen {
+  background: linear-gradient(180deg, #70e848 0%, #38b820 100%);
+}
+
+.hpYellow {
+  background: linear-gradient(180deg, #f8d030 0%, #d8a020 100%);
+}
+
+.hpRed {
+  background: linear-gradient(180deg, #f85858 0%, #c83838 100%);
+}
+
+// Stats row (level + HP numbers)
+.statsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.level {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: $pkmn-text;
+  text-shadow: 1px 1px 1px $pkmn-text-shadow;
+}
+
+.hpNumbers {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: $pkmn-text;
+  text-shadow: 1px 1px 1px $pkmn-text-shadow;
+  font-variant-numeric: tabular-nums;
+}
+
+// Bottom bar
+.bottomBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: $pkmn-bottom-bg;
+  padding: 0.6rem 0.75rem;
+  border-top: 2px solid #1a1a1a;
+}
+
+.chooseText {
+  font-size: 0.85rem;
+  color: $pkmn-text;
+  font-weight: 500;
+}
+
+.cancelBtn {
+  background: linear-gradient(180deg, #6888b0 0%, #486890 100%);
+  color: $pkmn-text;
+  border: 2px solid #385878;
+  border-radius: 0.35rem;
+  padding: 0.3rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: linear-gradient(180deg, #7898c0 0%, #5878a0 100%);
+  }
+}
+
+// Responsive
+@media (max-width: 480px) {
+  .partyGrid {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding: 0.5rem;
+  }
+
+  .slot {
+    min-height: 60px;
+  }
+
+  .spriteArea {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sprite,
+  .spritePlaceholder {
+    width: 36px;
+    height: 36px;
+  }
+}

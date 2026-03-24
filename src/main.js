@@ -14,9 +14,13 @@ const sizes = {
 };
 
 const raycasterObjects = [];
+const shudderCandidates = [];
 let currentIntersects = [];
-let currentHoveredOject = null;
+let currentHoveredObject = null;
 let hoverDebounceTimer = null;
+let shudderInterval = null;
+
+const isMobile = window.matchMedia("(pointer: coarse)").matches;
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -26,11 +30,6 @@ const manager = new THREE.LoadingManager();
 manager.onLoad = function() {
   window.hideLoader();
 }
-
-const socialLinks = {
-  Github: "https://github.com/WilliamRChiu",
-  Linkedin: "https://www.linkedin.com/in/williamrchiu/",
-};
 
 /*Loaders*/
 const textureLoader = new THREE.TextureLoader();
@@ -77,6 +76,7 @@ loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
         child.userData.initialScale = new THREE.Vector3().copy(child.scale);
         child.userData.initialPosition = new THREE.Vector3().copy(child.position);
         child.userData.initialRotation = new THREE.Euler().copy(child.rotation);
+        shudderCandidates.push(child);
       }
       Object.keys(textureMap).forEach((key) => {
         if (child.name.includes(key)) {
@@ -85,15 +85,51 @@ loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
           });
           child.material = material;
         }
-        if (child.name.includes("Third")) {
-          console.log(child.name, loaderTextures.day.Third, child.material.map);
-        }
         if (child.material.map) {
           child.material.map.minFilter = THREE.LinearFilter; //prevent seams from forming if zoom out
         }
       });
     }
   });
+  // Expand headphone hitbox for easier clicking
+  glb.scene.traverse((child) => {
+    if (child.isMesh && (child.name.toLowerCase().includes("headphone") || child.name.toLowerCase().includes("spotify"))) {
+      const box = new THREE.Box3().setFromObject(child);
+      const center = new THREE.Vector3();
+      const size = new THREE.Vector3();
+      box.getCenter(center);
+      box.getSize(size);
+
+      const expandedGeo = new THREE.BoxGeometry(size.x * 2.5, size.y * 2.5, size.z * 2.5);
+      const expandedMat = new THREE.MeshBasicMaterial({ visible: false });
+      const expandedMesh = new THREE.Mesh(expandedGeo, expandedMat);
+      expandedMesh.name = "HeadphoneRaycasterPointerExpanded";
+      expandedMesh.position.copy(center);
+      glb.scene.add(expandedMesh);
+      raycasterObjects.push(expandedMesh);
+    }
+  });
+
+  // Expand fridge photo hitbox for easier clicking
+  // Mesh name in Blender should contain "Photo" (e.g. "PhotoRaycasterPointerHover")
+  glb.scene.traverse((child) => {
+    if (child.isMesh && child.name.toLowerCase().includes("photo")) {
+      const box = new THREE.Box3().setFromObject(child);
+      const center = new THREE.Vector3();
+      const size = new THREE.Vector3();
+      box.getCenter(center);
+      box.getSize(size);
+
+      const expandedGeo = new THREE.BoxGeometry(size.x * 2, size.y * 2, size.z * 2);
+      const expandedMat = new THREE.MeshBasicMaterial({ visible: false });
+      const expandedMesh = new THREE.Mesh(expandedGeo, expandedMat);
+      expandedMesh.name = "PhotoRaycasterPointerExpanded";
+      expandedMesh.position.copy(center);
+      glb.scene.add(expandedMesh);
+      raycasterObjects.push(expandedMesh);
+    }
+  });
+
   scene.add(glb.scene);
 });
 
@@ -152,7 +188,24 @@ function handleInteraction() {
     } else if (hit.name.includes("Resume_Button")) {
       openModalAndLock("Resume");
     } else if (hit.name.toLowerCase().includes("headphone") || hit.name.toLowerCase().includes("spotify")) {
-      openModalAndLock("Spotify");
+      controls.enabled = false;
+      const vec = new THREE.Vector3();
+      hit.getWorldPosition(vec);
+      vec.project(camera);
+      const screenX = ((vec.x + 1) / 2) * window.innerWidth;
+      const screenY = ((-vec.y + 1) / 2) * window.innerHeight;
+      window.playMusicAndOpenModal(screenX, screenY);
+    } else if (hit.name.toLowerCase().includes("photo") || hit.name.toLowerCase().includes("fridge_photo")) {
+      openModalAndLock("Scrapbook");
+    } else if (hit.name.toLowerCase().includes("pokeball")) {
+      controls.enabled = false;
+      // Project pokeball world position to screen pixels
+      const vec = new THREE.Vector3();
+      hit.getWorldPosition(vec);
+      vec.project(camera);
+      const screenX = ((vec.x + 1) / 2) * window.innerWidth;
+      const screenY = ((-vec.y + 1) / 2) * window.innerHeight;
+      window.playSparkleAndOpenModal("Pokemon", screenX, screenY);
     }
   }
 }
@@ -207,15 +260,13 @@ function playHoverAnimation(object, isHovering) {
 
   if (isHovering) {
     if (isName) {
-      // Name object: pulsing animation (bigger and smaller)
+      // Name object: grow on hover
       gsap.to(object.scale, {
         x: object.userData.initialScale.x * 1.15,
         y: object.userData.initialScale.y * 1.15,
         z: object.userData.initialScale.z * 1.15,
-        duration: 0.5,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
+        duration: 0.3,
+        ease: "power2.out",
       });
     } else if (isPokeball) {
       // Pokeball: lift up and bob gently
@@ -283,6 +334,88 @@ function playHoverAnimation(object, isHovering) {
   }
 }
 
+/*Shudder system — periodic nudge to hint that objects are clickable*/
+
+function getScreenPosition(object) {
+  const vec = new THREE.Vector3();
+  object.getWorldPosition(vec);
+  vec.project(camera);
+  return { x: (vec.x + 1) / 2, y: (-vec.y + 1) / 2 };
+}
+
+function playShudderAnimation(object) {
+  if (object === currentHoveredObject) return;
+
+  const initial = object.userData.initialRotation;
+  gsap.fromTo(
+    object.rotation,
+    { z: initial.z - 0.04 },
+    {
+      z: initial.z + 0.04,
+      duration: 0.06,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: 5,
+      onComplete: () => {
+        object.rotation.z = initial.z;
+      },
+    }
+  );
+}
+
+function pickShudderTarget() {
+  if (window.isModalOpen) return;
+  if (shudderCandidates.length === 0) return;
+
+  const eligible = shudderCandidates.filter((o) => o !== currentHoveredObject);
+  if (eligible.length === 0) return;
+
+  if (isMobile) {
+    // Random selection on mobile
+    const idx = Math.floor(Math.random() * eligible.length);
+    playShudderAnimation(eligible[idx]);
+  } else {
+    // Distance-weighted selection on desktop (closer to cursor = more likely)
+    const mouseScreen = {
+      x: (pointer.x + 1) / 2,
+      y: (-pointer.y + 1) / 2,
+    };
+
+    const weighted = eligible.map((obj) => {
+      const pos = getScreenPosition(obj);
+      const dist = Math.hypot(pos.x - mouseScreen.x, pos.y - mouseScreen.y);
+      return { obj, weight: 1 / (dist + 0.01) };
+    });
+
+    const totalWeight = weighted.reduce((sum, c) => sum + c.weight, 0);
+    let rand = Math.random() * totalWeight;
+    for (const candidate of weighted) {
+      rand -= candidate.weight;
+      if (rand <= 0) {
+        playShudderAnimation(candidate.obj);
+        return;
+      }
+    }
+    playShudderAnimation(weighted[weighted.length - 1].obj);
+  }
+}
+
+function startShudderPolling() {
+  if (shudderInterval) return;
+  shudderInterval = setInterval(pickShudderTarget, 30000);
+}
+
+function stopShudderPolling() {
+  if (shudderInterval) {
+    clearInterval(shudderInterval);
+    shudderInterval = null;
+  }
+}
+
+window.startShudderPolling = startShudderPolling;
+window.stopShudderPolling = stopShudderPolling;
+startShudderPolling();
+
 const render = () => {
   controls.update();
 
@@ -301,13 +434,13 @@ const render = () => {
       }
 
       if (currentIntersectedObject.name.includes("Hover")) {
-        if (currentIntersectedObject != currentHoveredOject) {
+        if (currentIntersectedObject != currentHoveredObject) {
           //These cover cases on I am on hovered object, and i may switch to another hover object
-          if (currentHoveredOject) {
-            playHoverAnimation(currentHoveredOject, false);
+          if (currentHoveredObject) {
+            playHoverAnimation(currentHoveredObject, false);
           }
           playHoverAnimation(currentIntersectedObject, true);
-          currentHoveredOject = currentIntersectedObject;
+          currentHoveredObject = currentIntersectedObject;
         }
       }
       if (currentIntersectedObject.name.includes("Pointer")) {
@@ -316,13 +449,13 @@ const render = () => {
         document.body.style.cursor = "default";
       }
     } else {
-      if (currentHoveredOject && !hoverDebounceTimer) {
+      if (currentHoveredObject && !hoverDebounceTimer) {
         // Debounce the unhover to prevent edge flickering
-        const objectToUnhover = currentHoveredOject;
+        const objectToUnhover = currentHoveredObject;
         hoverDebounceTimer = setTimeout(() => {
-          if (currentHoveredOject === objectToUnhover) {
-            playHoverAnimation(currentHoveredOject, false);
-            currentHoveredOject = null;
+          if (currentHoveredObject === objectToUnhover) {
+            playHoverAnimation(currentHoveredObject, false);
+            currentHoveredObject = null;
           }
           hoverDebounceTimer = null;
         }, 50); // 50ms delay prevents edge flickering
@@ -330,11 +463,6 @@ const render = () => {
       document.body.style.cursor = "default";
     }
   }
-
-  /*camera logging*/
-  console.log(camera.position);
-  console.log("00000");
-  console.log(controls.target);
 
   renderer.render(scene, camera);
 

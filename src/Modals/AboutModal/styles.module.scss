@@ -6,19 +6,7 @@
   justify-content: center;
   gap: 2rem;
   padding: clamp(1.25rem, 1rem + 1vw, 2rem);
-  flex-wrap: wrap;
-
-  @media (max-width: 640px) {
-    max-width: 480px;
-  }
-}
-
-.left,
-.right {
-  flex: 1 1 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
 }
 
 .imageCircle {
@@ -27,7 +15,7 @@
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  border: 3px solid $blue-200;
+  border: 3px solid $accent-200;
   box-shadow: 0 4px 16px rgba($text-primary, 0.1);
   transition: opacity 0.5s ease;
 }
@@ -41,26 +29,16 @@
 }
 
 .divider {
-  width: 2px;
-  height: 150px;
-  background-color: $cream-300;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, $stone-300, transparent);
   flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    width: 80%;
-    height: 2px;
-    margin: 1.5rem 0;
-  }
 }
 
 .description {
   font-size: 1rem;
   line-height: 1.7;
   color: $text-primary;
-  max-width: 400px;
-  text-align: left;
-
-  @media (max-width: 768px) {
-    text-align: center;
-  }
+  max-width: 500px;
+  text-align: center;
 }

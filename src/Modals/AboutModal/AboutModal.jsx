@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
-import About from "../../Locales/About.json"
+import About from "../../Locales/About.json";
 
 export default function AboutModal() {
   const images = [
@@ -27,16 +27,12 @@ export default function AboutModal() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.left}>
-        <div
-          className={`${styles.imageCircle} ${fade ? styles.fadeIn : styles.fadeOut}`}
-          style={{ backgroundImage: `url(${images[currentImage]})` }}
-        />
-      </div>
+      <div
+        className={`${styles.imageCircle} ${fade ? styles.fadeIn : styles.fadeOut}`}
+        style={{ backgroundImage: `url(${images[currentImage]})` }}
+      />
       <div className={styles.divider} />
-      <div className={styles.right}>
-        <p className={styles.description}>{About.Description}</p>
-      </div>
+      <p className={styles.description}>{About.Description}</p>
     </div>
   );
 }

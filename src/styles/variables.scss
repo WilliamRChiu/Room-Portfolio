@@ -1,56 +1,72 @@
 // ============================================
-// Modern Cream & Soft Blue Color System
+// Warm Stone + Deep Teal + Terracotta
 // ============================================
-// A calm, minimal, premium palette built around
-// warm cream neutrals and light desaturated blues
+// Elevated casual palette — warm, curated, personal
 
-// Cream Neutrals (backgrounds & surfaces)
-$cream-50:         #fdfcfa;   // lightest cream - primary background
-$cream-100:        #f8f5f1;   // light warm cream - cards/surfaces
-$cream-200:        #f0ebe4;   // medium cream - subtle backgrounds
-$cream-300:        #e5dfd6;   // darker cream - low-contrast borders
-$cream-400:        #d4ccc1;   // muted cream - stronger borders
+// Stone Neutrals (warm backgrounds & surfaces)
+$stone-50:         #faf8f5;   // primary bg
+$stone-100:        #f4f0eb;   // card surfaces
+$stone-200:        #ebe5dc;   // subtle bg, inputs
+$stone-300:        #ddd5c9;   // borders, dividers
+$stone-400:        #c7bdaf;   // stronger borders
 
-// Soft Blues (accents & interactive)
-$blue-50:          #f2f6f9;   // very pale blue - subtle highlights
-$blue-100:         #e4ecf2;   // light blue - focus backgrounds
-$blue-200:         #c5d6e3;   // soft blue - secondary accents
-$blue-300:         #94b3c9;   // medium blue - primary interactive
-$blue-400:         #7199b3;   // stronger blue - hover states
-$blue-500:         #5a8299;   // deep blue - active/pressed
+// Deep Teal Accents (earthy, not corporate)
+$accent-100:       #e6f0ef;   // pill bg, focus bg
+$accent-200:       #c2dad7;   // focus rings, secondary
+$accent-300:       #7fb5ad;   // primary interactive
+$accent-400:       #5a9e94;   // hover
+$accent-500:       #3d8278;   // active/pressed
+$accent-600:       #2d6960;   // buttons
+$accent-700:       #1e4f48;   // heading color
 
-// Typography (soft, not pure black)
-$text-primary:     #3a3a3a;   // soft dark - main text
-$text-secondary:   #5c5c5c;   // medium gray - headings, labels
-$text-muted:       #8a8a8a;   // light gray - placeholders, hints
+// Typography (warm charcoal, not neutral gray)
+$text-primary:     #2d2a26;
+$text-secondary:   #5a554d;
+$text-muted:       #8f877c;
 
-// Functional Colors (softened)
-$success:          #7fb08d;   // soft sage green
-$success-light:    #e8f2eb;   // pale green background
-$error:            #c4908d;   // soft coral/rose
-$error-light:      #f8eeee;   // pale rose background
+// Functional Colors
+$success:          #5a9a68;
+$success-light:    #e8f2eb;
+$error:            #c07c6f;
+$error-light:      #f8eeee;
 
-// Legacy aliases (for backward compatibility with existing code)
-$base-dark-purple:     $blue-500;
-$base-purple:          $blue-400;
-$base-purple-200:      $blue-200;
-$base-light-purple:    $cream-200;
+// Personality accent
+$terracotta:       #c4836c;
 
-$base-pastel-blue:     $blue-100;
-$base-pastel-teal:     $blue-300;
+// Legacy aliases (backward compatibility — remap to new tokens)
+$cream-50:         $stone-50;
+$cream-100:        $stone-100;
+$cream-200:        $stone-200;
+$cream-300:        $stone-300;
+$cream-400:        $stone-400;
+
+$blue-50:          $accent-100;
+$blue-100:         $accent-100;
+$blue-200:         $accent-200;
+$blue-300:         $accent-300;
+$blue-400:         $accent-400;
+$blue-500:         $accent-500;
+
+$base-dark-purple:     $accent-500;
+$base-purple:          $accent-400;
+$base-purple-200:      $accent-200;
+$base-light-purple:    $stone-200;
+
+$base-pastel-blue:     $accent-100;
+$base-pastel-teal:     $accent-300;
 
 $base-pastel-green:    $success;
-$base-pastel-yellow:   $cream-100;
+$base-pastel-yellow:   $stone-100;
 $base-pastel-red:      $error;
 $base-pastel-red-200:  $error-light;
-$base-pastel-rust:     #d4b5ae;
+$base-pastel-rust:     $terracotta;
 $base-pastel-coral:    #e0c8c4;
 
 $base-black:           $text-primary;
 $base-dark-gray:       $text-secondary;
 $base-gray:            $text-muted;
-$base-light-gray:      $cream-300;
-$base-white:           $cream-50;
+$base-light-gray:      $stone-300;
+$base-white:           $stone-50;
 
 @mixin centered {
   display: flex;
