@@ -364,7 +364,8 @@ function MiniPlayer({ expanded, onCollapse, onDismiss, hidden }) {
 /* ------------- bridge so vanilla JS can open modals ------------- */
 function UIBridge() {
   const [modal, setModal] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loaderVisible, setLoaderVisible] = useState(true);
+  const [loaderExiting, setLoaderExiting] = useState(false);
   const [sparkle, setSparkle] = useState(false);
   const [sparklePos, setSparklePos] = useState(null);
   const [pendingModal, setPendingModal] = useState(null);
@@ -418,7 +419,7 @@ function UIBridge() {
     };
 
     // make the loading available to 3.js
-    window.hideLoader = () => setLoading(false);
+    window.hideLoader = () => setLoaderExiting(true);
   }, []);
 
   const handleSparkleComplete = () => {
@@ -461,7 +462,12 @@ function UIBridge() {
 
   return (
     <>
-        {loading && <Loader/>}
+        {loaderVisible && (
+          <Loader
+            exiting={loaderExiting}
+            onExitComplete={() => setLoaderVisible(false)}
+          />
+        )}
         {sparkle && <SparkleOverlay position={sparklePos} onComplete={handleSparkleComplete} />}
         {musicNote && <MusicNoteOverlay position={musicNotePos} onComplete={handleMusicNoteComplete} />}
         {spotifyActivated && !miniPlayerDismissed && (

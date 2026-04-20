@@ -632,8 +632,10 @@ html, body {
   }
 
   .mini-player--expanded {
-    width: min(100%, 480px);
-    top: 2rem;
-    transform: translateX(-50%);
+    width: min(calc(100vw - 1.5rem), 480px);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-height: calc(100dvh - 1.5rem);
+    overflow-y: auto;
   }
 }

@@ -43,8 +43,12 @@ const INITIAL_CONTROLS_TARGET = new THREE.Vector3(
 
 const manager = new THREE.LoadingManager();
 
-manager.onLoad = function() {
-  window.hideLoader();
+function hideLoaderAfterScenePaint() {
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      window.hideLoader();
+    });
+  });
 }
 
 /*Loaders*/
@@ -148,6 +152,7 @@ loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
   });
 
   scene.add(glb.scene);
+  hideLoaderAfterScenePaint();
 });
 
 
