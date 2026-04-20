@@ -615,8 +615,20 @@ html, body {
 }
 
 @media (max-width: 768px) {
+  .mini-player {
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
+  }
+
   .mini-player-tray {
-    width: 280px;
+    width: min(360px, calc(100vw - 1.5rem));
+    max-width: calc(100vw - 1.5rem);
+  }
+
+  .mini-player:not(.mini-player--expanded) {
+    .mini-player-embed iframe {
+      height: 152px;
+    }
   }
 
   .mini-player--expanded {

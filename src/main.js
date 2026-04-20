@@ -19,11 +19,27 @@ let currentIntersects = [];
 let currentHoveredObject = null;
 let hoverDebounceTimer = null;
 let shudderInterval = null;
+let sceneInputLockedUntil = 0;
+let touchStart = null;
 
-const isMobile = window.matchMedia("(pointer: coarse)").matches;
+const isMobile = window.matchMedia("(pointer: coarse), (max-width: 768px)").matches;
+const MOBILE_CAMERA_DISTANCE_MULTIPLIER = 1.2;
+const SCENE_INTERACTION_LOCK_MS = 500;
+const TAP_MAX_MOVEMENT_PX = 12;
+const TAP_MAX_DURATION_MS = 700;
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
+const INITIAL_CAMERA_POSITION = new THREE.Vector3(
+  1.7731712838628582,
+  8.644026257550694,
+  -2.8065522539595307
+);
+const INITIAL_CONTROLS_TARGET = new THREE.Vector3(
+  -11.075374626957164,
+  0.8632929503333462,
+  -18.317494451055623
+);
 
 const manager = new THREE.LoadingManager();
 
@@ -55,6 +71,7 @@ const loaderTextures = {
 };
 
 const openModalAndLock = (name) => {
+  lockSceneInteractions();
   controls.enabled = false;      // freeze OrbitControls
   window.openModal(name);        // function comes from ui.jsx
 };
@@ -142,7 +159,18 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(1.7731712838628582, 8.644026257550694, -2.8065522539595307);
+
+function getInitialCameraPosition() {
+  if (!isMobile) return INITIAL_CAMERA_POSITION.clone();
+
+  return INITIAL_CONTROLS_TARGET.clone().add(
+    INITIAL_CAMERA_POSITION.clone()
+      .sub(INITIAL_CONTROLS_TARGET)
+      .multiplyScalar(MOBILE_CAMERA_DISTANCE_MULTIPLIER)
+  );
+}
+
+camera.position.copy(getInitialCameraPosition());
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -154,12 +182,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); //Note: 2 is max p
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; //allows slowing glide after movement of camera
 controls.dampingFactor = 0.05;
+controls.target.copy(INITIAL_CONTROLS_TARGET);
 controls.update();
-controls.target.set(
-  -11.075374626957164,
-  0.8632929503333462,
-  -18.317494451055623
-);
 window.controls = controls;
 //ensure cam cant go below floor
 controls.minPolarAngle = 0;
@@ -175,8 +199,38 @@ controls.maxDistance = 50;
 
 /*Event Listeners*/
 
+function lockSceneInteractions(duration = SCENE_INTERACTION_LOCK_MS) {
+  sceneInputLockedUntil = Math.max(sceneInputLockedUntil, performance.now() + duration);
+  currentIntersects = [];
+  touchStart = null;
+}
+
+function sceneInteractionsLocked() {
+  return window.isModalOpen || performance.now() < sceneInputLockedUntil;
+}
+
+window.lockSceneInteractions = lockSceneInteractions;
+
+function updatePointerFromClient(clientX, clientY) {
+  pointer.x = (clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(clientY / window.innerHeight) * 2 + 1;
+}
+
+function refreshIntersects() {
+  raycaster.setFromCamera(pointer, camera);
+  currentIntersects = raycaster.intersectObjects(raycasterObjects);
+}
+
+function isCanvasEvent(e) {
+  return e.target === renderer.domElement;
+}
+
 //function for click events
 function handleInteraction() {
+  if (sceneInteractionsLocked()) return;
+
+  refreshIntersects();
+
   if (currentIntersects.length) {
     const hit = currentIntersects[0].object;
     if (hit.name.includes("Projects_Button")) {
@@ -188,6 +242,7 @@ function handleInteraction() {
     } else if (hit.name.includes("Resume_Button")) {
       openModalAndLock("Resume");
     } else if (hit.name.toLowerCase().includes("headphone") || hit.name.toLowerCase().includes("spotify")) {
+      lockSceneInteractions();
       controls.enabled = false;
       const vec = new THREE.Vector3();
       hit.getWorldPosition(vec);
@@ -198,6 +253,7 @@ function handleInteraction() {
     } else if (hit.name.toLowerCase().includes("photo") || hit.name.toLowerCase().includes("fridge_photo")) {
       openModalAndLock("Scrapbook");
     } else if (hit.name.toLowerCase().includes("pokeball")) {
+      lockSceneInteractions();
       controls.enabled = false;
       // Project pokeball world position to screen pixels
       const vec = new THREE.Vector3();
@@ -227,28 +283,84 @@ window.addEventListener("resize", () => {
 });
 
 window.addEventListener("mousemove", (e) => {
+  if (!isCanvasEvent(e)) return;
   if (window.isModalOpen) return;
-  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  updatePointerFromClient(e.clientX, e.clientY);
 });
 
 //for mobile users
 window.addEventListener(
   "touchstart",
   (e) => {
-    if (window.isModalOpen) return;
+    if (!isCanvasEvent(e)) {
+      touchStart = null;
+      return;
+    }
+    if (sceneInteractionsLocked()) {
+      touchStart = null;
+      return;
+    }
     e.preventDefault();
     //0 gets first finger that touches the screen
-    pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+    const touch = e.touches[0];
+    updatePointerFromClient(touch.clientX, touch.clientY);
+    touchStart = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: performance.now(),
+      eligible: true,
+    };
   },
   { passive: false }
 );
 
+window.addEventListener(
+  "touchmove",
+  (e) => {
+    if (!isCanvasEvent(e)) return;
+    if (!touchStart || !e.touches.length) return;
+
+    const touch = e.touches[0];
+    const distance = Math.hypot(touch.clientX - touchStart.x, touch.clientY - touchStart.y);
+    if (distance > TAP_MAX_MOVEMENT_PX) {
+      touchStart.eligible = false;
+    }
+  },
+  { passive: true }
+);
+
 //for desktop
-window.addEventListener("click", handleInteraction);
+window.addEventListener("click", (e) => {
+  if (!isCanvasEvent(e)) return;
+  handleInteraction();
+});
 //for mobile
-window.addEventListener("touchend", handleInteraction);
+window.addEventListener("touchend", (e) => {
+  if (!isCanvasEvent(e)) {
+    touchStart = null;
+    return;
+  }
+  if (sceneInteractionsLocked()) {
+    touchStart = null;
+    return;
+  }
+  if (!touchStart || !touchStart.eligible || !e.changedTouches.length) {
+    touchStart = null;
+    return;
+  }
+
+  const touch = e.changedTouches[0];
+  const distance = Math.hypot(touch.clientX - touchStart.x, touch.clientY - touchStart.y);
+  const duration = performance.now() - touchStart.time;
+  const isTap = distance <= TAP_MAX_MOVEMENT_PX && duration <= TAP_MAX_DURATION_MS;
+  touchStart = null;
+
+  if (!isTap) return;
+
+  e.preventDefault();
+  updatePointerFromClient(touch.clientX, touch.clientY);
+  handleInteraction();
+}, { passive: false });
 
 function playHoverAnimation(object, isHovering) {
   gsap.killTweensOf(object.scale);
@@ -419,11 +531,17 @@ startShudderPolling();
 const render = () => {
   controls.update();
 
-  raycaster.setFromCamera(pointer, camera);
+  if (sceneInteractionsLocked()) {
+    currentIntersects = [];
+    document.body.style.cursor = "default";
+    if (currentHoveredObject) {
+      playHoverAnimation(currentHoveredObject, false);
+      currentHoveredObject = null;
+    }
+  } else {
+    raycaster.setFromCamera(pointer, camera);
+    currentIntersects = raycaster.intersectObjects(raycasterObjects);
 
-  currentIntersects = raycaster.intersectObjects(raycasterObjects);
-
-  if (!window.isModalOpen) {
     if (currentIntersects.length > 0) {
       const currentIntersectedObject = currentIntersects[0].object;
 

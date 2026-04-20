@@ -285,8 +285,8 @@ function MiniPlayer({ expanded, onCollapse, onDismiss, hidden }) {
       tl.to(closeBtnRef.current, { rotation: 360, duration: 0.35, ease: "power2.in" }, 0);
     }
     if (playerRef.current) {
-      tl.to(playerRef.current, { scale: 1.05, xPercent: -50, yPercent: -50, duration: 0.2, ease: "power2.out" }, 0.05);
-      tl.to(playerRef.current, { scale: 0, opacity: 0, xPercent: -50, yPercent: -50, duration: 0.35, ease: "power2.in" }, 0.25);
+      tl.to(playerRef.current, { scale: 1.05, duration: 0.2, ease: "power2.out" }, 0.05);
+      tl.to(playerRef.current, { scale: 0, opacity: 0, duration: 0.35, ease: "power2.in" }, 0.25);
     }
     if (overlayRef.current) {
       tl.to(overlayRef.current, { opacity: 0, duration: 0.35 }, 0.25);
@@ -395,9 +395,11 @@ function UIBridge() {
       if (window.stopShudderPolling) window.stopShudderPolling();
     };
     window.closeModal = () => {
+      if (window.lockSceneInteractions) window.lockSceneInteractions();
       setModal(null);
       window.isModalOpen = false;
       document.body.style.overflow = "";
+      if (window.controls) window.controls.enabled = true;
       if (window.startShudderPolling) window.startShudderPolling();
     };
 
@@ -436,6 +438,7 @@ function UIBridge() {
   };
 
   const handleModalClose = () => {
+    if (window.lockSceneInteractions) window.lockSceneInteractions();
     setModal(null);
     window.isModalOpen = false;
     document.body.style.overflow = "";
@@ -444,6 +447,7 @@ function UIBridge() {
   };
 
   const handleSpotifyCollapse = () => {
+    if (window.lockSceneInteractions) window.lockSceneInteractions();
     setSpotifyExpanded(false);
     window.isModalOpen = false;
     document.body.style.overflow = "";
