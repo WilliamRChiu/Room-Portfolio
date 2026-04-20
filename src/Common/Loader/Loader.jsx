@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
 import styles from "./styles.module.scss";
 
-const EXIT_DURATION_MS = 3600;
+const EXIT_DURATION_MS = 2100;
 
 export default function Loader({ exiting = false, onExitComplete }) {
   const message = "Setting up William's room";
+  const letters = message.split("");
+  const lastLetterIndex = letters.length - 1;
 
   useEffect(() => {
     if (!exiting) return undefined;
@@ -19,13 +21,6 @@ export default function Loader({ exiting = false, onExitComplete }) {
   return (
     <div className={`${styles.loaderWrapper} ${exiting ? styles.exiting : ""}`}>
       <div className={styles.loaderContent}>
-        <div className={styles.envelope} aria-hidden="true">
-          <span className={styles.envelopeBody} />
-          <span className={styles.envelopeLeft} />
-          <span className={styles.envelopeRight} />
-          <span className={styles.envelopeFlap} />
-        </div>
-
         <div className={styles.loadingBody}>
           <div className={styles.scene}>
             <div className={`${styles.shape} ${styles.circle}`} />
@@ -38,15 +33,21 @@ export default function Loader({ exiting = false, onExitComplete }) {
           </div>
 
           <p className={styles.text}>
-            {message.split("").map((char, i) => (
-              <span
-                key={i}
-                className={styles.letter}
-                style={{ animationDelay: `${i * 0.06}s` }}
-              >
-                {char === " " ? "\u00A0" : char}
-              </span>
-            ))}
+            {letters.map((char, i) => {
+              const enterDelay = i * 0.06;
+              const exitDelay = (lastLetterIndex - i) * 0.025;
+              return (
+                <span
+                  key={i}
+                  className={styles.letter}
+                  style={{
+                    animationDelay: exiting ? `${exitDelay}s` : `${enterDelay}s`,
+                  }}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </span>
+              );
+            })}
           </p>
           <p className={styles.subtext}>Best experienced on desktop</p>
         </div>
