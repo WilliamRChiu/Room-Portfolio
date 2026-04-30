@@ -14,11 +14,17 @@ const sizes = {
 };
 
 const raycasterObjects = [];
-const shudderCandidates = [];
+const hoverAnimationCandidates = [];
 let currentIntersects = [];
 let currentHoveredObject = null;
 let hoverDebounceTimer = null;
-let shudderInterval = null;
+let autoHoverInterval = null;
+let autoHoverStartTimeout = null;
+let autoHoverIndex = 0;
+let autoHoverHasStarted = false;
+let autoHoveredObject = null;
+let autoHoverResetCall = null;
+let pointerHoverPulseResetCall = null;
 let sceneInputLockedUntil = 0;
 let touchStart = null;
 
@@ -27,6 +33,9 @@ const MOBILE_CAMERA_DISTANCE_MULTIPLIER = 1.2;
 const SCENE_INTERACTION_LOCK_MS = 500;
 const TAP_MAX_MOVEMENT_PX = 12;
 const TAP_MAX_DURATION_MS = 700;
+const AUTO_HOVER_INTERVAL_MS = 5000;
+const AUTO_HOVER_INITIAL_DELAY_MS = 10000;
+const AUTO_HOVER_RESET_DELAY_SECONDS = 2;
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -80,6 +89,14 @@ const openModalAndLock = (name) => {
   window.openModal(name);        // function comes from ui.jsx
 };
 
+function ensureHoverAnimationState(object) {
+  if (object.userData.initialScale) return;
+
+  object.userData.initialScale = new THREE.Vector3().copy(object.scale);
+  object.userData.initialPosition = new THREE.Vector3().copy(object.position);
+  object.userData.initialRotation = new THREE.Euler().copy(object.rotation);
+}
+
 Object.entries(textureMap).forEach(([key, paths]) => {
   const dayTexture = textureLoader.load(paths);
   dayTexture.flipY = false;
@@ -94,10 +111,8 @@ loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
         raycasterObjects.push(child);
       }
       if (child.name.includes("Hover")) {
-        child.userData.initialScale = new THREE.Vector3().copy(child.scale);
-        child.userData.initialPosition = new THREE.Vector3().copy(child.position);
-        child.userData.initialRotation = new THREE.Euler().copy(child.rotation);
-        shudderCandidates.push(child);
+        ensureHoverAnimationState(child);
+        hoverAnimationCandidates.push(child);
       }
       Object.keys(textureMap).forEach((key) => {
         if (child.name.includes(key)) {
@@ -146,6 +161,9 @@ loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
       const expandedMesh = new THREE.Mesh(expandedGeo, expandedMat);
       expandedMesh.name = "PhotoRaycasterPointerExpanded";
       expandedMesh.position.copy(center);
+      ensureHoverAnimationState(child);
+      child.userData.pointerHoverPulse = true;
+      expandedMesh.userData.hoverTarget = child;
       glb.scene.add(expandedMesh);
       raycasterObjects.push(expandedMesh);
     }
@@ -153,6 +171,7 @@ loader.load("/models/MainRoomV43PostBake-v1.glb", (glb) => {
 
   scene.add(glb.scene);
   hideLoaderAfterScenePaint();
+  startShudderPolling();
 });
 
 
@@ -367,7 +386,7 @@ window.addEventListener("touchend", (e) => {
   handleInteraction();
 }, { passive: false });
 
-function playHoverAnimation(object, isHovering) {
+function playHoverAnimation(object, isHovering, options = {}) {
   gsap.killTweensOf(object.scale);
   gsap.killTweensOf(object.rotation);
   gsap.killTweensOf(object.position);
@@ -384,6 +403,7 @@ function playHoverAnimation(object, isHovering) {
         z: object.userData.initialScale.z * 1.15,
         duration: 0.3,
         ease: "power2.out",
+        onComplete: options.onScaleInComplete,
       });
     } else if (isPokeball) {
       // Pokeball: lift up and bob gently
@@ -393,6 +413,7 @@ function playHoverAnimation(object, isHovering) {
         z: object.userData.initialScale.z * 1.1,
         duration: 0.4,
         ease: "power2.out",
+        onComplete: options.onScaleInComplete,
       });
 
       const hoverHeight = 0.15;
@@ -418,6 +439,7 @@ function playHoverAnimation(object, isHovering) {
         z: object.userData.initialScale.z * 1.2,
         duration: 0.5,
         ease: "bounce.out(1.8)",
+        onComplete: options.onScaleInComplete,
       });
       gsap.to(object.rotation, {
         x: (object.userData.initialRotation.x * Math.PI) / 8,
@@ -451,87 +473,142 @@ function playHoverAnimation(object, isHovering) {
   }
 }
 
-/*Shudder system — periodic nudge to hint that objects are clickable*/
+function getHoverAnimationObject(object) {
+  const target = object.userData.hoverTarget || object;
 
-function getScreenPosition(object) {
-  const vec = new THREE.Vector3();
-  object.getWorldPosition(vec);
-  vec.project(camera);
-  return { x: (vec.x + 1) / 2, y: (-vec.y + 1) / 2 };
-}
-
-function playShudderAnimation(object) {
-  if (object === currentHoveredObject) return;
-
-  const initial = object.userData.initialRotation;
-  gsap.fromTo(
-    object.rotation,
-    { z: initial.z - 0.04 },
-    {
-      z: initial.z + 0.04,
-      duration: 0.06,
-      ease: "sine.inOut",
-      yoyo: true,
-      repeat: 5,
-      onComplete: () => {
-        object.rotation.z = initial.z;
-      },
-    }
-  );
-}
-
-function pickShudderTarget() {
-  if (window.isModalOpen) return;
-  if (shudderCandidates.length === 0) return;
-
-  const eligible = shudderCandidates.filter((o) => o !== currentHoveredObject);
-  if (eligible.length === 0) return;
-
-  if (isMobile) {
-    // Random selection on mobile
-    const idx = Math.floor(Math.random() * eligible.length);
-    playShudderAnimation(eligible[idx]);
-  } else {
-    // Distance-weighted selection on desktop (closer to cursor = more likely)
-    const mouseScreen = {
-      x: (pointer.x + 1) / 2,
-      y: (-pointer.y + 1) / 2,
-    };
-
-    const weighted = eligible.map((obj) => {
-      const pos = getScreenPosition(obj);
-      const dist = Math.hypot(pos.x - mouseScreen.x, pos.y - mouseScreen.y);
-      return { obj, weight: 1 / (dist + 0.01) };
-    });
-
-    const totalWeight = weighted.reduce((sum, c) => sum + c.weight, 0);
-    let rand = Math.random() * totalWeight;
-    for (const candidate of weighted) {
-      rand -= candidate.weight;
-      if (rand <= 0) {
-        playShudderAnimation(candidate.obj);
-        return;
-      }
-    }
-    playShudderAnimation(weighted[weighted.length - 1].obj);
+  if (target.name.includes("Hover") || target.userData.pointerHoverPulse) {
+    return target;
   }
+
+  return null;
+}
+
+function cancelPointerHoverPulseReset() {
+  if (!pointerHoverPulseResetCall) return;
+
+  pointerHoverPulseResetCall.kill();
+  pointerHoverPulseResetCall = null;
+}
+
+function schedulePointerHoverPulseReset(object) {
+  cancelPointerHoverPulseReset();
+
+  pointerHoverPulseResetCall = gsap.delayedCall(AUTO_HOVER_RESET_DELAY_SECONDS, () => {
+    pointerHoverPulseResetCall = null;
+
+    if (currentHoveredObject !== object) return;
+
+    playHoverAnimation(object, false);
+  });
+}
+
+function playPointerHoverAnimation(object) {
+  if (!object.userData.pointerHoverPulse) {
+    playHoverAnimation(object, true);
+    return;
+  }
+
+  playHoverAnimation(object, true, {
+    onScaleInComplete: () => {
+      if (currentHoveredObject === object) {
+        schedulePointerHoverPulseReset(object);
+      }
+    },
+  });
+}
+
+/* Auto-hover loop: cycles through Hover objects one at a time. */
+
+function cancelAutoHoverReset() {
+  if (!autoHoverResetCall) return;
+
+  autoHoverResetCall.kill();
+  autoHoverResetCall = null;
+}
+
+function clearAutoHoverObject() {
+  cancelAutoHoverReset();
+
+  if (!autoHoveredObject) return;
+
+  playHoverAnimation(autoHoveredObject, false);
+  autoHoveredObject = null;
+}
+
+function scheduleAutoHoverReset(object) {
+  cancelAutoHoverReset();
+
+  autoHoverResetCall = gsap.delayedCall(AUTO_HOVER_RESET_DELAY_SECONDS, () => {
+    autoHoverResetCall = null;
+
+    if (autoHoveredObject !== object || currentHoveredObject === object) return;
+
+    playHoverAnimation(object, false);
+    autoHoveredObject = null;
+  });
+}
+
+function getNextAutoHoverTarget() {
+  if (hoverAnimationCandidates.length === 0) return null;
+
+  for (let i = 0; i < hoverAnimationCandidates.length; i += 1) {
+    const object = hoverAnimationCandidates[autoHoverIndex];
+    autoHoverIndex = (autoHoverIndex + 1) % hoverAnimationCandidates.length;
+
+    if (object.name.includes("Hover") && object !== currentHoveredObject) {
+      return object;
+    }
+  }
+
+  return null;
+}
+
+function triggerNextAutoHoverObject() {
+  clearAutoHoverObject();
+
+  if (window.isModalOpen || currentHoveredObject) return;
+
+  const target = getNextAutoHoverTarget();
+  if (!target) return;
+
+  autoHoveredObject = target;
+  playHoverAnimation(target, true, {
+    onScaleInComplete: () => {
+      if (autoHoveredObject === target) {
+        scheduleAutoHoverReset(target);
+      }
+    },
+  });
 }
 
 function startShudderPolling() {
-  if (shudderInterval) return;
-  shudderInterval = setInterval(pickShudderTarget, 30000);
+  if (autoHoverInterval || autoHoverStartTimeout) return;
+
+  const startDelay = autoHoverHasStarted ? AUTO_HOVER_INTERVAL_MS : AUTO_HOVER_INITIAL_DELAY_MS;
+  autoHoverStartTimeout = setTimeout(() => {
+    autoHoverStartTimeout = null;
+    autoHoverHasStarted = true;
+    triggerNextAutoHoverObject();
+    autoHoverInterval = setInterval(triggerNextAutoHoverObject, AUTO_HOVER_INTERVAL_MS);
+  }, startDelay);
 }
 
 function stopShudderPolling() {
-  if (shudderInterval) {
-    clearInterval(shudderInterval);
-    shudderInterval = null;
+  if (autoHoverStartTimeout) {
+    clearTimeout(autoHoverStartTimeout);
+    autoHoverStartTimeout = null;
   }
+
+  if (autoHoverInterval) {
+    clearInterval(autoHoverInterval);
+    autoHoverInterval = null;
+  }
+
+  clearAutoHoverObject();
 }
 
 window.startShudderPolling = startShudderPolling;
 window.stopShudderPolling = stopShudderPolling;
-startShudderPolling();
 
 const render = () => {
   controls.update();
@@ -540,15 +617,18 @@ const render = () => {
     currentIntersects = [];
     document.body.style.cursor = "default";
     if (currentHoveredObject) {
+      cancelPointerHoverPulseReset();
       playHoverAnimation(currentHoveredObject, false);
       currentHoveredObject = null;
     }
+    clearAutoHoverObject();
   } else {
     raycaster.setFromCamera(pointer, camera);
     currentIntersects = raycaster.intersectObjects(raycasterObjects);
 
     if (currentIntersects.length > 0) {
       const currentIntersectedObject = currentIntersects[0].object;
+      const currentHoverAnimationObject = getHoverAnimationObject(currentIntersectedObject);
 
       // Clear any pending unhover timer since we're still on an object
       if (hoverDebounceTimer) {
@@ -556,15 +636,34 @@ const render = () => {
         hoverDebounceTimer = null;
       }
 
-      if (currentIntersectedObject.name.includes("Hover")) {
-        if (currentIntersectedObject != currentHoveredObject) {
+      if (currentHoverAnimationObject) {
+        if (autoHoveredObject === currentHoverAnimationObject && !currentHoveredObject) {
+          cancelAutoHoverReset();
+          currentHoveredObject = currentHoverAnimationObject;
+          autoHoveredObject = null;
+          if (currentHoverAnimationObject.userData.pointerHoverPulse) {
+            schedulePointerHoverPulseReset(currentHoverAnimationObject);
+          }
+        } else if (currentHoverAnimationObject != currentHoveredObject) {
           //These cover cases on I am on hovered object, and i may switch to another hover object
+          clearAutoHoverObject();
+          cancelPointerHoverPulseReset();
           if (currentHoveredObject) {
             playHoverAnimation(currentHoveredObject, false);
           }
-          playHoverAnimation(currentIntersectedObject, true);
-          currentHoveredObject = currentIntersectedObject;
+          playPointerHoverAnimation(currentHoverAnimationObject);
+          currentHoveredObject = currentHoverAnimationObject;
         }
+      } else if (currentHoveredObject && !hoverDebounceTimer) {
+        const objectToUnhover = currentHoveredObject;
+        hoverDebounceTimer = setTimeout(() => {
+          if (currentHoveredObject === objectToUnhover) {
+            cancelPointerHoverPulseReset();
+            playHoverAnimation(currentHoveredObject, false);
+            currentHoveredObject = null;
+          }
+          hoverDebounceTimer = null;
+        }, 50);
       }
       if (currentIntersectedObject.name.includes("Pointer")) {
         document.body.style.cursor = "pointer";
@@ -577,6 +676,7 @@ const render = () => {
         const objectToUnhover = currentHoveredObject;
         hoverDebounceTimer = setTimeout(() => {
           if (currentHoveredObject === objectToUnhover) {
+            cancelPointerHoverPulseReset();
             playHoverAnimation(currentHoveredObject, false);
             currentHoveredObject = null;
           }
