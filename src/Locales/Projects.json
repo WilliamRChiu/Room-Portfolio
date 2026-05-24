@@ -16,7 +16,11 @@
         "description": "Currently building an autonomous bug killing robot using a Raspberry Pi, camera, and custom computer vision model to identify and eliminate bugs in a designated area",
         "codeUrl": "https://github.com/WilliamRChiu/Bug-Killing-Robot",
         "tech": ["Raspberry Pi", "Python", "C++", "OpenCV", "TensorFlow"]
+    },
+    "Polyhedral Order Book": {
+        "title": "Polyhedral Order Book",
+        "description": "Traditional central limit order books only match orders in pairs, which causes wide spreads, cold-start problems for new trading pairs, and prevents correlated assets from being quoted directly against each other. This is a C++ implementation of a polyhedral order book that lets each order span any number of assets and uses linear programming to find matching cycles whose net inventory is non-negative across every asset. Based on Jacob Jackson's 2023 paper.",
+        "codeUrl": "https://github.com/WilliamRChiu/polyhedral-order-book",
+        "tech": ["C++", "CMake", "HiGHS", "Linear Programming", "Catch2"]
     }
-    
-    
 }

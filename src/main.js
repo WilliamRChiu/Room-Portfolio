@@ -27,10 +27,12 @@ let autoHoverResetCall = null;
 let pointerHoverPulseResetCall = null;
 let sceneInputLockedUntil = 0;
 let touchStart = null;
+let lastCanvasTouchEndAt = 0;
 
 const isMobile = window.matchMedia("(pointer: coarse), (max-width: 768px)").matches;
 const MOBILE_CAMERA_DISTANCE_MULTIPLIER = 1.2;
 const SCENE_INTERACTION_LOCK_MS = 500;
+const SYNTHESIZED_CLICK_GUARD_MS = 500;
 const TAP_MAX_MOVEMENT_PX = 12;
 const TAP_MAX_DURATION_MS = 700;
 const AUTO_HOVER_INTERVAL_MS = 5000;
@@ -227,6 +229,9 @@ function lockSceneInteractions(duration = SCENE_INTERACTION_LOCK_MS) {
   sceneInputLockedUntil = Math.max(sceneInputLockedUntil, performance.now() + duration);
   currentIntersects = [];
   touchStart = null;
+  // Park the raycaster pointer off-screen so it can't re-hit the last button
+  // when the scene unlocks. mousemove/touchstart will repopulate it.
+  pointer.set(-10, -10);
 }
 
 function sceneInteractionsLocked() {
@@ -356,6 +361,9 @@ window.addEventListener(
 //for desktop
 window.addEventListener("click", (e) => {
   if (!isCanvasEvent(e)) return;
+  // Mobile browsers dispatch a synthesized click after touchend; touchend
+  // already ran handleInteraction, so suppress the duplicate here.
+  if (performance.now() - lastCanvasTouchEndAt < SYNTHESIZED_CLICK_GUARD_MS) return;
   handleInteraction();
 });
 //for mobile
@@ -364,6 +372,7 @@ window.addEventListener("touchend", (e) => {
     touchStart = null;
     return;
   }
+  lastCanvasTouchEndAt = performance.now();
   if (sceneInteractionsLocked()) {
     touchStart = null;
     return;

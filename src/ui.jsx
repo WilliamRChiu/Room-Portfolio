@@ -19,9 +19,11 @@ function Modal({ type, onClose }) {
   const closeBtnRef = useRef(null);
   const modalRef = useRef(null);
   const wrapperRef = useRef(null);
+  const openedAtRef = useRef(0);
 
   useEffect(() => {
     if (!type) return;
+    openedAtRef.current = performance.now();
     gsap.fromTo(wrapperRef.current, { opacity: 0 }, { opacity: 1, duration: 0.4 });
     if (type === "Scrapbook") {
       gsap.fromTo(modalRef.current,
@@ -78,6 +80,12 @@ function Modal({ type, onClose }) {
 
   const closeEvent = (e) => {
     e.stopPropagation();
+    // Mobile browsers synthesize a click after the canvas touchend that opened
+    // this modal — if it lands on the backdrop (now covering the tap location),
+    // it would immediately close the modal. X-button taps use a different
+    // currentTarget and are never blocked.
+    if (e.currentTarget === wrapperRef.current &&
+        performance.now() - openedAtRef.current < 500) return;
     startClose();
   };
 
