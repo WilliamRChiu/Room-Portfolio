@@ -22,5 +22,11 @@
         "description": "Traditional central limit order books only match orders in pairs, which causes wide spreads, cold-start problems for new trading pairs, and prevents correlated assets from being quoted directly against each other. This is a C++ implementation of a polyhedral order book that lets each order span any number of assets and uses linear programming to find matching cycles whose net inventory is non-negative across every asset. Based on Jacob Jackson's 2023 paper.",
         "codeUrl": "https://github.com/WilliamRChiu/polyhedral-order-book",
         "tech": ["C++", "CMake", "HiGHS", "Linear Programming", "Catch2"]
+    },
+    "Fit With Dyce": {
+        "title": "Fit With Dyce Platform",
+        "description": "Currently doing contract work to design and build out a custom fitness platform from the ground up for a client. Repository is private since this is a paid client engagement — building the full stack including the user-facing experience and the training/coaching workflows the customer's business runs on.",
+        "codeUrl": "https://github.com/BDOGGGGGGGGG/fitwithdyce",
+        "tech": []
     }
 }
